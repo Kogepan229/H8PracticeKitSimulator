@@ -1,0 +1,168 @@
+name: build
+on: push
+
+env:
+  PROJECT_NAME: imgui_glfw_vulkan_template
+
+jobs:
+  build-windows:
+    runs-on: windows-2022
+    env:
+      LLVM-MINGW_VERSION: 20230614
+      VULKAN_VERSION: 1.3.261.1
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Restore cache llvm-mingw
+        id: restore-cache-llvm-mingw
+        uses: actions/cache/restore@v3
+        with:
+          path: "C:/llvm-mingw-${{ env.LLVM-MINGW_VERSION }}-ucrt-x86_64"
+          key: "${{ env.LLVM-MINGW_VERSION }}"
+
+      - name: Download llvm-mingw
+        if: steps.restore-cache-llvm-mingw.outputs.cache-hit != 'true'
+        run: >
+          Invoke-WebRequest
+          -Uri https://github.com/mstorsjo/llvm-mingw/releases/download/${{ env.LLVM-MINGW_VERSION }}/llvm-mingw-${{ env.LLVM-MINGW_VERSION }}-ucrt-x86_64.zip
+          -OutFile C:/llvm-mingw-${{ env.LLVM-MINGW_VERSION }}-ucrt-x86_64.zip
+
+      - name: Unzip llvm-mingw
+        if: steps.restore-cache-llvm-mingw.outputs.cache-hit != 'true'
+        run: |
+          Expand-Archive C:/llvm-mingw-${{ env.LLVM-MINGW_VERSION }}-ucrt-x86_64.zip C:/llvm-mingw
+          move C:/llvm-mingw/llvm-mingw-${{ env.LLVM-MINGW_VERSION }}-ucrt-x86_64 C:/llvm-mingw-${{ env.LLVM-MINGW_VERSION }}-ucrt-x86_64
+
+      - name: Cache llvm-mingw
+        if: steps.restore-cache-llvm-mingw.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        with:
+          path: "C:/llvm-mingw-${{ env.LLVM-MINGW_VERSION }}-ucrt-x86_64"
+          key: "${{ env.LLVM-MINGW_VERSION }}"
+
+      - name: Install Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        with:
+          vulkan-query-version: ${{ env.VULKAN_VERSION }}
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
+
+      - name: Run cmake
+        run: >
+          cmake .
+          -B build
+          -G "Ninja"
+          -DCMAKE_C_COMPILER:FILEPATH="C:/llvm-mingw-${{ env.LLVM-MINGW_VERSION }}-ucrt-x86_64/bin/clang.exe"
+          -DCMAKE_CXX_COMPILER:FILEPATH="C:/llvm-mingw-${{ env.LLVM-MINGW_VERSION }}-ucrt-x86_64/bin/clang++.exe"
+          -DCMAKE_MAKE_PROGRAM="ninja"
+          -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: |
+          cd build
+          ninja
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.PROJECT_NAME }}-x86_64-windows
+          path: ./build/src/${{ env.PROJECT_NAME }}.exe
+          if-no-files-found: error
+
+  build-linux:
+    runs-on: ubuntu-22.04
+    env:
+      LLVM_VERSION: 17
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install LLVM
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh ${{ env.LLVM_VERSION }}
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libvulkan-dev ninja-build xorg-dev
+
+      - name: Run cmake
+        run: >
+          cmake .
+          -B build
+          -G "Ninja"
+          -DCMAKE_C_COMPILER="clang-${{ env.LLVM_VERSION }}"
+          -DCMAKE_CXX_COMPILER="clang++-${{ env.LLVM_VERSION }}"
+          -DCMAKE_MAKE_PROGRAM="ninja"
+          -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: |
+          cd build
+          ninja
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.PROJECT_NAME }}-x86_64-linux
+          path: ./build/src/${{ env.PROJECT_NAME }}
+          if-no-files-found: error
+
+  release:
+    runs-on: ubuntu-22.04
+    needs: [build-windows, build-linux]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: Check version
+        id: check_version
+        uses: salsify/action-detect-and-tag-new-version@v2
+        with:
+          version-command: |
+            cat ./src/project_version.h | cut -d "\"" -f 2
+          create-tag: false
+
+      - name: Download artifacts
+        if: ${{ steps.check_version.outputs.previous-version != steps.check_version.outputs.current-version }}
+        uses: actions/download-artifact@v3
+        with:
+          path: ./artifacts
+
+      - name: Package files
+        if: ${{ steps.check_version.outputs.previous-version != steps.check_version.outputs.current-version }}
+        run: |
+          cd ./artifacts
+          zip -r ${{ env.PROJECT_NAME }}-x86_64-windows-${{steps.check_version.outputs.current-version}}.zip ./${{ env.PROJECT_NAME }}-x86_64-windows
+          tar -zcvf ${{ env.PROJECT_NAME }}-x86_64-linux-${{steps.check_version.outputs.current-version}}.tar.gz ./${{ env.PROJECT_NAME }}-x86_64-linux
+
+      - name: Create tag
+        id: create_tag
+        if: ${{ steps.check_version.outputs.previous-version != steps.check_version.outputs.current-version }}
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          custom_tag: ${{ steps.check_version.outputs.current-version }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create a GitHub release
+        id: create_release
+        if: ${{ steps.check_version.outputs.previous-version != steps.check_version.outputs.current-version }}
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.create_tag.outputs.new_tag }}
+          name: Release ${{ steps.create_tag.outputs.new_tag }}
+          body: ${{ steps.create_tag.outputs.changelog }}
+          artifacts:
+            "./artifacts/${{ env.PROJECT_NAME }}-x86_64-windows-${{steps.check_version.outputs.current-version}}.zip,
+            ./artifacts/${{ env.PROJECT_NAME }}-x86_64-linux-${{steps.check_version.outputs.current-version}}.tar.gz"
+          makeLatest: "latest"

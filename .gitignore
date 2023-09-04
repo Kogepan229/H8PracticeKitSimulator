@@ -1,0 +1,7 @@
+.vscode
+.vs
+out
+build
+CMakeFiles
+CmakeCache.txt
+CmakeSettings.json
