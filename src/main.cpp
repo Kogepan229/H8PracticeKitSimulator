@@ -12,6 +12,7 @@
 #include <stdio.h>   // printf, fprintf
 #include <stdlib.h>  // abort
 
+#include <cassert>
 #include <string>
 
 #include "imgui.h"
@@ -24,6 +25,7 @@
 #include <vulkan/vulkan.h>
 // #include <vulkan/vulkan_beta.h>
 
+#include "font.h"
 #include "project_version.h"
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and
@@ -475,7 +477,8 @@ int main(int, char**) {
     // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
     // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
     // ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr,
-    // io.Fonts->GetGlyphRangesJapanese()); IM_ASSERT(font != nullptr);
+
+    init::LoadFonts(io);
 
     // Upload Fonts
     {
@@ -553,7 +556,7 @@ int main(int, char**) {
             static float f     = 0.0f;
             static int counter = 0;
 
-            ImGui::Begin("Hello, world!");  // Create a window called "Hello, world!" and append into it.
+            ImGui::Begin("Hello, world ウィンドウだよ!");  // Create a window called "Hello, world!" and append into it.
 
             ImGui::Text("This is some useful text.");           // Display some text (you can use a format strings too)
             ImGui::Checkbox("Demo Window", &show_demo_window);  // Edit bools storing our window open/close state
@@ -568,7 +571,7 @@ int main(int, char**) {
             ImGui::SameLine();
             ImGui::Text("counter = %d", counter);
 
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+            ImGui::Text("Application average(平均) %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::End();
         }
 
