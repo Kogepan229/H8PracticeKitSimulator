@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(imgui_glfw_vulkan_template C CXX)
+project(h8pks C CXX)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug CACHE STRING "" FORCE)
