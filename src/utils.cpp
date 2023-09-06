@@ -12,8 +12,9 @@ std::pair<std::string, std::string> split_str_on_first(const std::string &src, c
     for (char ch : src) {
         if (ch == delim) {
             found = true;
+            continue;
         }
-        if (found) {
+        if (!found) {
             s1 += ch;
         } else {
             s2 += ch;
