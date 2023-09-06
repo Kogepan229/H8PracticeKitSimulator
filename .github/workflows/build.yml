@@ -2,7 +2,7 @@ name: build
 on: push
 
 env:
-  PROJECT_NAME: imgui_glfw_vulkan_template
+  PROJECT_NAME: h8pks
 
 jobs:
   build-windows:
