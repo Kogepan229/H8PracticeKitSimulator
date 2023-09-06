@@ -4,6 +4,7 @@ set(CORE_SOURCES
     font.cpp
     log.cpp
     lang.cpp
+    utils.cpp
 )
 
 add_library(Sources STATIC ${CORE_SOURCES})
