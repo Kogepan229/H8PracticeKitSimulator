@@ -3,6 +3,7 @@ find_package(Vulkan REQUIRED)
 set(CORE_SOURCES
     font.cpp
     log.cpp
+    lang.cpp
 )
 
 add_library(Sources STATIC ${CORE_SOURCES})

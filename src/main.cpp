@@ -26,6 +26,7 @@
 // #include <vulkan/vulkan_beta.h>
 
 #include "font.h"
+#include "lang.h"
 #include "project_version.h"
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and
@@ -477,6 +478,8 @@ int main(int, char**) {
     // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
     // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
     // ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr,
+
+    lang::load_translation("ja_jp");
 
     init::LoadFonts(io);
 
