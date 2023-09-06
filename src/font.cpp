@@ -1,4 +1,7 @@
+#include <string>
+
 #include "imgui.h"
+
 /*
  * Reference: https://qiita.com/benikabocha/items/a25571c1b059eaf952de
  */
@@ -597,17 +600,21 @@ static const ImWchar glyphRangesJapanese[] = {
 
 namespace init {
 
+constexpr std::string_view FONTS_DIR_PATH = "./assets/fonts";
+
 bool LoadFonts(ImGuiIO& imguiIO) {
     ImFontConfig config;
     config.MergeMode = true;
 
     // Load Roboto
-    auto font = imguiIO.Fonts->AddFontFromFileTTF("../../fonts/Roboto/Roboto-Regular.ttf", 20.0f);
+    auto font =
+        imguiIO.Fonts->AddFontFromFileTTF((std::string(FONTS_DIR_PATH) + "/Roboto/Roboto-Regular.ttf").c_str(), 20.0f);
     assert(font != nullptr);
 
     // Load NotoSansJP
     font = imguiIO.Fonts->AddFontFromFileTTF(
-        "../../fonts/Noto_Sans_JP/NotoSansJP-Regular.ttf", 22.0f, &config, glyphRangesJapanese
+        (std::string(FONTS_DIR_PATH) + "/Noto_Sans_JP/NotoSansJP-Regular.ttf").c_str(), 22.0f, &config,
+        glyphRangesJapanese
     );
     assert(font != nullptr);
 

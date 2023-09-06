@@ -10,7 +10,7 @@
 
 namespace lang {
 
-constexpr std::string_view LANG_DIR_PATH = "./lang";
+constexpr std::string_view LANG_DIR_PATH = "./assets/lang";
 
 const std::unordered_map<std::string, std::string> locale_map = {
     {"en_us", "English (US)"},
