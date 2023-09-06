@@ -561,7 +561,9 @@ int main(int, char**) {
 
             ImGui::Begin("Hello, world ウィンドウだよ!");  // Create a window called "Hello, world!" and append into it.
 
-            ImGui::Text("This is some useful text.");           // Display some text (you can use a format strings too)
+            ImGui::Text("This is some useful text.");  // Display some text (you can use a format strings too)
+            ImGui::TextUnformatted(lang::translate(lang::LangKeys::LANGUAGE).c_str());
+            ImGui::TextUnformatted(lang::translate(lang::LangKeys::TEST_TEXT).c_str());
             ImGui::Checkbox("Demo Window", &show_demo_window);  // Edit bools storing our window open/close state
             ImGui::Checkbox("Another Window", &show_another_window);
 

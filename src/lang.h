@@ -7,7 +7,10 @@ namespace lang {
 
 extern const std::unordered_map<std::string, std::string> locale_map;
 
-enum class LangKeys;
+enum class LangKeys {
+    LANGUAGE,
+    TEST_TEXT,
+};
 
 bool load_translation(std::string locale);
 
