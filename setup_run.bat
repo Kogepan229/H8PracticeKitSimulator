@@ -1,0 +1,1 @@
+xcopy /s .\assets .\build\src\assets\
