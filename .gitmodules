@@ -4,9 +4,9 @@
 [submodule "libraries/glfw"]
 	path = libraries/glfw
 	url = https://github.com/glfw/glfw.git
-[submodule "libraries/mongoose"]
-	path = libraries/mongoose
-	url = https://github.com/cesanta/mongoose.git
 [submodule "libraries/mbedtls"]
 	path = libraries/mbedtls
 	url = https://github.com/Mbed-TLS/mbedtls.git
+[submodule "libraries/mongoose"]
+	path = libraries/mongoose
+	url = https://github.com/cesanta/mongoose.git
