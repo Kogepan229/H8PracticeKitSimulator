@@ -36,9 +36,16 @@ include_directories(${GLFW_DIR}/include)
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libraries/imgui)
 include_directories(${IMGUI_DIR} ${IMGUI_DIR}/backends ..)
 
+# Mongoose
+set(MONGOOSE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libraries/mongoose)
+include_directories(${MONGOOSE_DIR})
+
 # Libraries
 find_package(Vulkan REQUIRED)
 set(LIBRARIES "glfw;Vulkan::Vulkan")
+if (WIN32)
+    set (LIBRARIES "${LIBRARIES};ws2_32")
+endif()
 
 # Use vulkan headers from glfw:
 include_directories(${GLFW_DIR}/deps)
