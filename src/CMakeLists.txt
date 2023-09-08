@@ -1,10 +1,12 @@
 find_package(Vulkan REQUIRED)
 
 set(CORE_SOURCES
+    cert.cpp
     font.cpp
     log.cpp
     lang.cpp
     utils.cpp
+    network.cpp
 )
 
 add_library(Sources STATIC ${CORE_SOURCES})
