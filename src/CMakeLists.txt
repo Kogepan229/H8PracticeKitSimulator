@@ -1,5 +1,3 @@
-find_package(Vulkan REQUIRED)
-
 set(CORE_SOURCES
     cert.cpp
     font.cpp

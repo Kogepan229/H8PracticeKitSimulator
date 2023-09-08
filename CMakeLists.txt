@@ -38,9 +38,9 @@ set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libraries/imgui)
 include_directories(${IMGUI_DIR} ${IMGUI_DIR}/backends ..)
 
 # Mbedtls
+set(MBEDTLS ./libraries/mbedtls)
 option(ENABLE_PROGRAMS "Build mbed TLS programs." OFF)
 option(ENABLE_TESTING "Build mbed TLS tests." OFF)
-set(MBEDTLS ./libraries/mbedtls)
 add_subdirectory(${MBEDTLS})
 include_directories(${MBEDTLS}/include)
 
