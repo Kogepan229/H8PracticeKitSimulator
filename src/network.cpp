@@ -37,7 +37,7 @@ static std::unique_ptr<char[]> conv_mg_str(size_t len, const char *str) {
 static size_t send_request_head(struct mg_connection *c, std::string url) {
     struct mg_str host = mg_url_host(url.c_str());
     // Send request
-    // printf("send: %s\n", mg_url_uri(url.c_str()));
+    // printf("send head: %s\n", mg_url_uri(url.c_str()));
     int result = mg_printf(
         c,
         "HEAD %s HTTP/1.0\r\n"
@@ -51,7 +51,7 @@ static size_t send_request_head(struct mg_connection *c, std::string url) {
 static size_t send_request_get(struct mg_connection *c, std::string url) {
     struct mg_str host = mg_url_host(url.c_str());
     // Send request
-    // printf("send: %s\n", mg_url_uri(url.c_str()));
+    // printf("send get: %s\n", mg_url_uri(url.c_str()));
     int result = mg_printf(
         c,
         "GET %s HTTP/1.0\r\n"
@@ -111,6 +111,7 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
             if (((CallbackData *)fn_data)->file.is_open()) {
                 ((CallbackData *)fn_data)->file.close();
             }
+            ((CallbackData *)fn_data)->done = true;
             return;
         }
         // Create and open file
@@ -128,6 +129,7 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
         }
         // Write to file
         ((CallbackData *)fn_data)->file.write(hm->chunk.ptr, hm->chunk.len);
+        mg_http_delete_chunk(c, hm);
         if (((CallbackData *)fn_data)->file.fail()) {
             printf("Could not write to file to download.\n");
             ((CallbackData *)fn_data)->file.close();
@@ -135,10 +137,9 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
 
         // Update progress
         ((CallbackData *)fn_data)->received_length += hm->chunk.len;
-        printf("%d/%d\n", ((CallbackData *)fn_data)->received_length, ((CallbackData *)fn_data)->content_length);
+        // printf("%d/%d\n", ((CallbackData *)fn_data)->received_length, ((CallbackData *)fn_data)->content_length);
     }
     if (ev == MG_EV_HTTP_MSG) {
-        // int status = mg_http_status(hm);
         ((CallbackData *)fn_data)->done = true;
     }
 }
