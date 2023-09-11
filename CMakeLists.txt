@@ -7,19 +7,25 @@ endif()
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DVK_PROTOTYPES  -pipe -fintegrated-as -fintegrated-cc1")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DVK_PROTOTYPES")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG} -ftrivial-auto-var-init=pattern -Wtautological-compare -Wsign-compare")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} -O3")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_PROTOTYPES -pipe -fintegrated-as -fintegrated-cc1")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_PROTOTYPES")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -O1 -ftrivial-auto-var-init=pattern -Wtautological-compare -Wsign-compare")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
-if(WIN32)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=lld")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=lld")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pipe -fintegrated-as -fintegrated-cc1")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -fintegrated-as -fintegrated-cc1")
+  if(WIN32)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=lld")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=lld")
+  endif()
 endif()
+
+
 
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS} -flto=full -fwhole-program-vtables -fforce-emit-vtables -fvirtual-function-elimination -ffunction-sections -fdata-sections -Wl,--gc-sections")
 
