@@ -6,3 +6,8 @@ AlignConsecutiveAssignments: Consecutive
 AlignConsecutiveBitFields: Consecutive
 AlignEscapedNewlines: Left
 AlignOperands: AlignAfterOperator
+AllowShortBlocksOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeComma
