@@ -29,7 +29,7 @@ struct CallbackData {
 
 static std::unique_ptr<char[]> conv_mg_str(size_t len, const char *str) {
     auto s = std::make_unique<char[]>(len + 1);
-    std::memcpy(s.get(), str, len);
+    memcpy(s.get(), str, len);
     s[len] = '\0';
     return s;
 }
