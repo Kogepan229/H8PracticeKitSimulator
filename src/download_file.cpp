@@ -1,6 +1,5 @@
-#include "network.h"
+#include "download_file.h"
 
-#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -165,7 +164,9 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
     }
 }
 
-int access() {
+namespace network {
+
+int download_file() {
     CallbackData callback_data  = CallbackData();
     callback_data.url           = s_url;
     callback_data.file_dir_path = s_path;
@@ -203,6 +204,9 @@ int access() {
     }
 
     // Create directory
+    if (!callback_data.file_dir_path.ends_with("/")) {
+        callback_data.file_dir_path += "/";
+    }
     try {
         std::filesystem::create_directories(callback_data.file_dir_path);
     } catch (std::filesystem::filesystem_error e) {
@@ -228,3 +232,5 @@ int access() {
     log::debug("Complete download.");
     return 0;
 }
+
+}  // namespace network

@@ -25,9 +25,9 @@
 #include <vulkan/vulkan.h>
 // #include <vulkan/vulkan_beta.h>
 
+#include "download_file.h"
 #include "font.h"
 #include "lang.h"
-#include "network.h"
 #include "project_version.h"
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and
@@ -62,9 +62,11 @@ static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 static void check_vk_result(VkResult err) {
-    if (err == 0) return;
+    if (err == 0)
+        return;
     fprintf(stderr, "[vulkan] Error: VkResult = %d\n", err);
-    if (err < 0) abort();
+    if (err < 0)
+        abort();
 }
 
 #ifdef IMGUI_VULKAN_DEBUG_REPORT
@@ -85,7 +87,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_report(
 
 static bool IsExtensionAvailable(const ImVector<VkExtensionProperties>& properties, const char* extension) {
     for (const VkExtensionProperties& p : properties)
-        if (strcmp(p.extensionName, extension) == 0) return true;
+        if (strcmp(p.extensionName, extension) == 0)
+            return true;
     return false;
 }
 
@@ -106,11 +109,13 @@ static VkPhysicalDevice SetupVulkan_SelectPhysicalDevice() {
     for (VkPhysicalDevice& device : gpus) {
         VkPhysicalDeviceProperties properties;
         vkGetPhysicalDeviceProperties(device, &properties);
-        if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) return device;
+        if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+            return device;
     }
 
     // Use first GPU (Integrated) is a Discrete one is not available.
-    if (gpu_count > 0) return gpus[0];
+    if (gpu_count > 0)
+        return gpus[0];
     return VK_NULL_HANDLE;
 }
 
@@ -369,7 +374,8 @@ static void FrameRender(ImGui_ImplVulkanH_Window* wd, ImDrawData* draw_data) {
 }
 
 static void FramePresent(ImGui_ImplVulkanH_Window* wd) {
-    if (g_SwapChainRebuild) return;
+    if (g_SwapChainRebuild)
+        return;
     VkSemaphore render_complete_semaphore = wd->FrameSemaphores[wd->SemaphoreIndex].RenderCompleteSemaphore;
     VkPresentInfoKHR info                 = {};
     info.sType                            = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -390,7 +396,8 @@ static void FramePresent(ImGui_ImplVulkanH_Window* wd) {
 // Main code
 int main(int, char**) {
     glfwSetErrorCallback(glfw_error_callback);
-    if (!glfwInit()) return 1;
+    if (!glfwInit())
+        return 1;
 
     // Create window with Vulkan context
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -467,7 +474,7 @@ int main(int, char**) {
     // Load Fonts
     init::LoadFonts(io);
 
-    access();
+    network::download_file();
 
     // Upload Fonts
     {
@@ -538,7 +545,8 @@ int main(int, char**) {
 
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code
         // to learn more about Dear ImGui!).
-        if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
+        if (show_demo_window)
+            ImGui::ShowDemoWindow(&show_demo_window);
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
         {
@@ -574,7 +582,8 @@ int main(int, char**) {
             );  // Pass a pointer to our bool variable (the window will have a closing
                 // button that will clear the bool when clicked)
             ImGui::Text("Hello from another window!");
-            if (ImGui::Button("Close Me")) show_another_window = false;
+            if (ImGui::Button("Close Me"))
+                show_another_window = false;
             ImGui::End();
         }
 
@@ -586,7 +595,8 @@ int main(int, char**) {
         wd->ClearValue.color.float32[1] = clear_color.y * clear_color.w;
         wd->ClearValue.color.float32[2] = clear_color.z * clear_color.w;
         wd->ClearValue.color.float32[3] = clear_color.w;
-        if (!main_is_minimized) FrameRender(wd, main_draw_data);
+        if (!main_is_minimized)
+            FrameRender(wd, main_draw_data);
 
         // Update and Render additional Platform Windows
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
@@ -595,7 +605,8 @@ int main(int, char**) {
         }
 
         // Present Main Platform Window
-        if (!main_is_minimized) FramePresent(wd);
+        if (!main_is_minimized)
+            FramePresent(wd);
     }
 
     // Cleanup

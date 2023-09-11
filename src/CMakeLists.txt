@@ -4,7 +4,7 @@ set(CORE_SOURCES
     log.cpp
     lang.cpp
     utils.cpp
-    network.cpp
+    download_file.cpp
 )
 
 add_library(Sources STATIC ${CORE_SOURCES})
