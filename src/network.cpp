@@ -103,8 +103,8 @@ static void callback_head(struct mg_connection *c, int ev, void *ev_data, void *
     if ((ev == MG_EV_ERROR) || (ev == MG_EV_CLOSE)) {
         if (ev == MG_EV_ERROR) {
             ((CallbackData *)fn_data)->error = std::string((char *)ev_data);
+            ((CallbackData *)fn_data)->done = true;
         }
-        ((CallbackData *)fn_data)->done = true;
         return;
     }
 }
