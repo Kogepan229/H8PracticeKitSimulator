@@ -474,7 +474,11 @@ int main(int, char**) {
     // Load Fonts
     init::LoadFonts(io);
 
-    network::download_file();
+    network::download_file(
+        "https://github.com/Kogepan229/Koge29_H8-3069F_Emulator/releases/latest/download/"
+        "h8-3069f_emulator-x86_64-pc-windows-msvc-0.1.1.zip",
+        "./download/"
+    );
 
     // Upload Fonts
     {

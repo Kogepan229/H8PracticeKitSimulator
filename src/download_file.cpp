@@ -10,12 +10,6 @@
 #include "log.h"
 #include "mongoose.h"
 
-static const std::string s_url =
-    "https://github.com/Kogepan229/Koge29_H8-3069F_Emulator/releases/latest/download/"
-    "h8-3069f_emulator-x86_64-pc-windows-msvc-0.1.1.zip";
-
-static const std::string s_path = "./download/";
-
 struct CallbackData {
     bool done                 = false;
     std::string url           = "";
@@ -166,10 +160,10 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
 
 namespace network {
 
-int download_file() {
+DownloadFileResult download_file(std::string url, std::string file_dir_path) {
     CallbackData callback_data  = CallbackData();
-    callback_data.url           = s_url;
-    callback_data.file_dir_path = s_path;
+    callback_data.url           = url;
+    callback_data.file_dir_path = file_dir_path;
 
     // Init
     struct mg_mgr mgr;
@@ -178,11 +172,11 @@ int download_file() {
     mg_tls_ctx_init(&mgr, &opts);
 
     // Get Header to get content-length and filename
-    mg_http_connect(&mgr, s_url.c_str(), callback_head, &callback_data);
+    mg_http_connect(&mgr, callback_data.url.c_str(), callback_head, &callback_data);
     while (!callback_data.done) {
         mg_mgr_poll(&mgr, 50);
         if (!callback_data.redirect_url.empty()) {
-            log::debug("redirect: " + callback_data.url);
+            log::debug("redirect to: " + callback_data.redirect_url);
             callback_data.url = callback_data.redirect_url;
             callback_data.redirect_url.clear();
             mg_http_connect(&mgr, callback_data.url.c_str(), callback_head, &callback_data);
@@ -193,14 +187,15 @@ int download_file() {
     if (!callback_data.error.empty()) {
         log::error(callback_data.error);
         mg_mgr_free(&mgr);
-        return 0;
+        return DownloadFileResult("", callback_data.error);
     }
 
     // Check exist file
     if (std::filesystem::is_regular_file(callback_data.file_dir_path + callback_data.filename)) {
-        log::warn("The file tried to download is already exist.");
+        std::string exist_file_error = "The file tried to download is already exist.";
+        log::warn(exist_file_error);
         mg_mgr_free(&mgr);
-        return 0;
+        return DownloadFileResult(callback_data.file_dir_path + callback_data.filename, exist_file_error);
     }
 
     // Create directory
@@ -213,7 +208,7 @@ int download_file() {
         log::error(e.what());
         callback_data.error = e.what();
         mg_mgr_free(&mgr);
-        return 0;
+        return DownloadFileResult("", callback_data.error);
     }
 
     // Download file
@@ -230,7 +225,7 @@ int download_file() {
 
     mg_mgr_free(&mgr);
     log::debug("Complete download.");
-    return 0;
+    return DownloadFileResult(callback_data.file_dir_path + callback_data.filename, "");
 }
 
 }  // namespace network
