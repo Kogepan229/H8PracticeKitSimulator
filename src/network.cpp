@@ -1,6 +1,7 @@
 #include "network.h"
 
 #include <chrono>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -13,9 +14,8 @@
 static const std::string s_url =
     "https://github.com/Kogepan229/Koge29_H8-3069F_Emulator/releases/latest/download/"
     "h8-3069f_emulator-x86_64-pc-windows-msvc-0.1.1.zip";
-// static const std::string s_url = "http://info.cern.ch/";
 
-static const std::string s_path = "./";
+static const std::string s_path = "./download/";
 
 struct CallbackData {
     bool done                 = false;
@@ -87,8 +87,11 @@ static void callback_head(struct mg_connection *c, int ev, void *ev_data, void *
                 auto filename = mg_http_get_header_var(*content_disposition, mg_str("filename"));
                 if (filename.len > 0) {
                     ((CallbackData *)fn_data)->filename = std::string(conv_mg_str(filename.len, filename.ptr).get());
-                    // printf("filename: %s\n", ((CallbackData *)fn_data)->filename.c_str());
+                } else {
+                    log::error("Could not get filename from header.");
                 }
+            } else {
+                log::error("Could not get filename from header.");
             }
 
             // Read content length
@@ -103,6 +106,7 @@ static void callback_head(struct mg_connection *c, int ev, void *ev_data, void *
     if ((ev == MG_EV_ERROR) || (ev == MG_EV_CLOSE)) {
         if (ev == MG_EV_ERROR) {
             ((CallbackData *)fn_data)->error = std::string((char *)ev_data);
+            log::error(((CallbackData *)fn_data)->error);
             ((CallbackData *)fn_data)->done = true;
         }
         return;
@@ -125,10 +129,7 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
         }
         // Create and open file
         if (!((CallbackData *)fn_data)->file.is_open()) {
-            auto millisec_since_epoch =
-                duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            // TODO: file path
-            std::string filename                = std::to_string(millisec_since_epoch);
+            std::string filename = ((CallbackData *)fn_data)->file_dir_path + ((CallbackData *)fn_data)->filename;
             ((CallbackData *)fn_data)->filename = filename;
             ((CallbackData *)fn_data)->file.open(filename, std::ios_base::out | std::ios_base::binary);
             if (((CallbackData *)fn_data)->file.fail()) {
@@ -154,6 +155,7 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
     if ((ev == MG_EV_ERROR) || (ev == MG_EV_CLOSE)) {
         if (ev == MG_EV_ERROR) {
             ((CallbackData *)fn_data)->error = std::string((char *)ev_data);
+            log::error(((CallbackData *)fn_data)->error);
         }
         if (((CallbackData *)fn_data)->file.is_open()) {
             ((CallbackData *)fn_data)->file.close();
@@ -164,8 +166,9 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
 }
 
 int access() {
-    CallbackData callback_data = CallbackData();
-    callback_data.url          = s_url;
+    CallbackData callback_data  = CallbackData();
+    callback_data.url           = s_url;
+    callback_data.file_dir_path = s_path;
 
     // Init
     struct mg_mgr mgr;
@@ -178,36 +181,50 @@ int access() {
     while (!callback_data.done) {
         mg_mgr_poll(&mgr, 50);
         if (!callback_data.redirect_url.empty()) {
-            printf("redirect: %s\n", callback_data.url.c_str());
+            log::debug("redirect: " + callback_data.url);
             callback_data.url = callback_data.redirect_url;
             callback_data.redirect_url.clear();
             mg_http_connect(&mgr, callback_data.url.c_str(), callback_head, &callback_data);
-            printf("redirect\n");
         }
     }
 
-    // error check
+    // Check error
     if (!callback_data.error.empty()) {
         log::error(callback_data.error);
         mg_mgr_free(&mgr);
         return 0;
     }
 
+    // Check exist file
+    if (std::filesystem::is_regular_file(callback_data.file_dir_path + callback_data.filename)) {
+        log::warn("The file tried to download is already exist.");
+        mg_mgr_free(&mgr);
+        return 0;
+    }
+
+    // Create directory
+    try {
+        std::filesystem::create_directories(callback_data.file_dir_path);
+    } catch (std::filesystem::filesystem_error e) {
+        log::error(e.what());
+        callback_data.error = e.what();
+        mg_mgr_free(&mgr);
+        return 0;
+    }
+
+    // Download file
     callback_data.done = false;
-
-    // TODO: file exist check
-
-    // download file
     mg_http_connect(&mgr, callback_data.url.c_str(), callback_get, &callback_data);
     while (!callback_data.done) {
         mg_mgr_poll(&mgr, 50);
     }
 
-    // error check
+    // Check error
     if (!callback_data.error.empty()) {
         log::error(callback_data.error);
     }
 
     mg_mgr_free(&mgr);
+    log::debug("Complete download.");
     return 0;
 }
