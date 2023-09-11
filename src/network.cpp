@@ -7,6 +7,7 @@
 #include <string>
 
 #include "cert.h"
+#include "log.h"
 #include "mongoose.h"
 
 static const std::string s_url =
@@ -25,6 +26,7 @@ struct CallbackData {
     std::string file_dir_path = "";
     std::string filename      = "";
     std::ofstream file;
+    std::string error = "";
 };
 
 static std::unique_ptr<char[]> conv_mg_str(size_t len, const char *str) {
@@ -98,6 +100,13 @@ static void callback_head(struct mg_connection *c, int ev, void *ev_data, void *
         }
         ((CallbackData *)fn_data)->done = true;
     }
+    if ((ev == MG_EV_ERROR) || (ev == MG_EV_CLOSE)) {
+        if (ev == MG_EV_ERROR) {
+            ((CallbackData *)fn_data)->error = std::string((char *)ev_data);
+        }
+        ((CallbackData *)fn_data)->done = true;
+        return;
+    }
 }
 
 static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
@@ -142,6 +151,16 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
     if (ev == MG_EV_HTTP_MSG) {
         ((CallbackData *)fn_data)->done = true;
     }
+    if ((ev == MG_EV_ERROR) || (ev == MG_EV_CLOSE)) {
+        if (ev == MG_EV_ERROR) {
+            ((CallbackData *)fn_data)->error = std::string((char *)ev_data);
+        }
+        if (((CallbackData *)fn_data)->file.is_open()) {
+            ((CallbackData *)fn_data)->file.close();
+        }
+        ((CallbackData *)fn_data)->done = true;
+        return;
+    }
 }
 
 int access() {
@@ -167,6 +186,13 @@ int access() {
         }
     }
 
+    // error check
+    if (!callback_data.error.empty()) {
+        log::error(callback_data.error);
+        mg_mgr_free(&mgr);
+        return 0;
+    }
+
     callback_data.done = false;
 
     // TODO: file exist check
@@ -175,6 +201,11 @@ int access() {
     mg_http_connect(&mgr, callback_data.url.c_str(), callback_get, &callback_data);
     while (!callback_data.done) {
         mg_mgr_poll(&mgr, 50);
+    }
+
+    // error check
+    if (!callback_data.error.empty()) {
+        log::error(callback_data.error);
     }
 
     mg_mgr_free(&mgr);
