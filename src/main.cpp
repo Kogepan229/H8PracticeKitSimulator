@@ -56,7 +56,7 @@ int main(int, char**) {
     lang::load_translation("ja_jp");
 
     // Load Fonts
-    init::LoadFonts();
+    init::load_fonts();
 
     // Upload Fonts
     graphics::init::upload_fonts();

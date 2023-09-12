@@ -2,6 +2,6 @@
 
 namespace init {
 
-bool LoadFonts();
+bool load_fonts();
 
 }

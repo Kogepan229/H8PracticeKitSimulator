@@ -602,7 +602,7 @@ namespace init {
 
 constexpr std::string_view FONTS_DIR_PATH = "./assets/fonts";
 
-bool LoadFonts() {
+bool load_fonts() {
     ImGuiIO& io = ImGui::GetIO();
     ImFontConfig config;
     config.MergeMode = true;
