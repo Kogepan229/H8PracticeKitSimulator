@@ -12,25 +12,15 @@
 #include <stdio.h>   // printf, fprintf
 #include <stdlib.h>  // abort
 
-// #include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
-
-#include "imgui.h"
-// #include "imgui_impl_glfw.h"
-// #include "imgui_impl_vulkan.h"
-
-// #define GLFW_INCLUDE_NONE
-// #define GLFW_INCLUDE_VULKAN
-// #include <GLFW/glfw3.h>
-// #include <vulkan/vulkan.h>
-// #include <vulkan/vulkan_beta.h>
 
 #include "download_file.h"
 #include "font.h"
 #include "graphics.h"
 #include "gui/download_file_gui.h"
+#include "imgui.h"
 #include "lang.h"
 #include "project_version.h"
 
@@ -62,12 +52,6 @@ int main(int, char**) {
     graphics::init::upload_fonts();
 
     ImGuiIO& io = ImGui::GetIO();
-
-    // network::download_file(
-    //     "https://github.com/Kogepan229/Koge29_H8-3069F_Emulator/releases/latest/download/"
-    //     "h8-3069f_emulator-x86_64-pc-windows-msvc-0.1.1.zip",
-    //     "./download/"
-    // );
 
     // Our state
     bool show_demo_window    = true;
