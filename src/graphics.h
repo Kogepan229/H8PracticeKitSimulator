@@ -13,8 +13,8 @@ void upload_fonts();
 
 }  // namespace init
 
-void resize_swap_chain();
 bool window_should_close();
+void new_frame();
 void render(ImVec4 clear_color);
 void cleanup();
 

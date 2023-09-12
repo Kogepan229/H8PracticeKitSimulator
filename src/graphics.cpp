@@ -361,6 +361,22 @@ static void FramePresent(ImGui_ImplVulkanH_Window* wd) {
     wd->SemaphoreIndex = (wd->SemaphoreIndex + 1) % wd->ImageCount;  // Now we can use the next set of semaphores
 }
 
+static void resize_swap_chain() {
+    if (g_SwapChainRebuild) {
+        int width, height;
+        glfwGetFramebufferSize(g_Window, &width, &height);
+        if (width > 0 && height > 0) {
+            ImGui_ImplVulkan_SetMinImageCount(g_MinImageCount);
+            ImGui_ImplVulkanH_CreateOrResizeWindow(
+                g_Instance, g_PhysicalDevice, g_Device, &g_MainWindowData, g_QueueFamily, g_Allocator, width, height,
+                g_MinImageCount
+            );
+            g_MainWindowData.FrameIndex = 0;
+            g_SwapChainRebuild          = false;
+        }
+    }
+}
+
 namespace graphics {
 namespace init {
 
@@ -472,28 +488,32 @@ void upload_fonts() {
 
 }  // namespace init
 
-void resize_swap_chain() {
-    if (g_SwapChainRebuild) {
-        int width, height;
-        glfwGetFramebufferSize(g_Window, &width, &height);
-        if (width > 0 && height > 0) {
-            ImGui_ImplVulkan_SetMinImageCount(g_MinImageCount);
-            ImGui_ImplVulkanH_CreateOrResizeWindow(
-                g_Instance, g_PhysicalDevice, g_Device, &g_MainWindowData, g_QueueFamily, g_Allocator, width, height,
-                g_MinImageCount
-            );
-            g_MainWindowData.FrameIndex = 0;
-            g_SwapChainRebuild          = false;
-        }
-    }
-}
-
 bool window_should_close() {
     if (glfwWindowShouldClose(g_Window)) {
         return true;
     } else {
         return false;
     }
+}
+
+void new_frame() {
+    // Poll and handle events (inputs, window resize, etc.)
+    // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your
+    // inputs.
+    // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or
+    // clear/overwrite your copy of the mouse data.
+    // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or
+    // clear/overwrite your copy of the keyboard data. Generally you may always pass all inputs to dear imgui, and
+    // hide them from your application based on those two flags.
+    glfwPollEvents();
+
+    // Resize swap chain?
+    resize_swap_chain();
+
+    // Start the Dear ImGui frame
+    ImGui_ImplVulkan_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
 }
 
 void render(ImVec4 clear_color) {

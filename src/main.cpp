@@ -12,19 +12,19 @@
 #include <stdio.h>   // printf, fprintf
 #include <stdlib.h>  // abort
 
-#include <cassert>
+// #include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_vulkan.h"
+// #include "imgui_impl_glfw.h"
+// #include "imgui_impl_vulkan.h"
 
-#define GLFW_INCLUDE_NONE
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#include <vulkan/vulkan.h>
+// #define GLFW_INCLUDE_NONE
+// #define GLFW_INCLUDE_VULKAN
+// #include <GLFW/glfw3.h>
+// #include <vulkan/vulkan.h>
 // #include <vulkan/vulkan_beta.h>
 
 #include "download_file.h"
@@ -84,23 +84,7 @@ int main(int, char**) {
 
     // Main loop
     while (!graphics::window_should_close()) {
-        // Poll and handle events (inputs, window resize, etc.)
-        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your
-        // inputs.
-        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or
-        // clear/overwrite your copy of the mouse data.
-        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or
-        // clear/overwrite your copy of the keyboard data. Generally you may always pass all inputs to dear imgui, and
-        // hide them from your application based on those two flags.
-        glfwPollEvents();
-
-        // Resize swap chain?
-        graphics::resize_swap_chain();
-
-        // Start the Dear ImGui frame
-        ImGui_ImplVulkan_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        graphics::new_frame();
 
         // Process async gui
         for (auto it = async_gui_list.begin(); it != async_gui_list.end();) {
