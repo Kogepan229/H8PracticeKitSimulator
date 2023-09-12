@@ -1,9 +1,7 @@
 #pragma once
 
-#include "imgui.h"
-
 namespace init {
 
-bool LoadFonts(ImGuiIO& imguiIO);
+bool LoadFonts();
 
 }

@@ -602,23 +602,24 @@ namespace init {
 
 constexpr std::string_view FONTS_DIR_PATH = "./assets/fonts";
 
-bool LoadFonts(ImGuiIO& imguiIO) {
+bool LoadFonts() {
+    ImGuiIO& io = ImGui::GetIO();
     ImFontConfig config;
     config.MergeMode = true;
 
     // Load Roboto
     auto font =
-        imguiIO.Fonts->AddFontFromFileTTF((std::string(FONTS_DIR_PATH) + "/Roboto/Roboto-Regular.ttf").c_str(), 20.0f);
+        io.Fonts->AddFontFromFileTTF((std::string(FONTS_DIR_PATH) + "/Roboto/Roboto-Regular.ttf").c_str(), 20.0f);
     assert(font != nullptr);
 
     // Load NotoSansJP
-    font = imguiIO.Fonts->AddFontFromFileTTF(
+    font = io.Fonts->AddFontFromFileTTF(
         (std::string(FONTS_DIR_PATH) + "/Noto_Sans_JP/NotoSansJP-Regular.ttf").c_str(), 22.0f, &config,
         glyphRangesJapanese
     );
     assert(font != nullptr);
 
-    return imguiIO.Fonts->Build();
+    return io.Fonts->Build();
 }
 
 }  // namespace init
