@@ -38,12 +38,20 @@ void DownloadFileGui::update() {
         if (result.error.empty()) {
             ImGui::TextUnformatted("Download finished!");
         } else {
-            ImGui::TextUnformatted(result.error.c_str());
+            ImGui::TextUnformatted(("Error: " + result.error).c_str());
         }
     } else {
         ImGui::TextUnformatted("Downloading ...");
     }
+
     ImGui::Text("%d/%d", received_length, content_length);
+
+    if (finished) {
+        if (ImGui::Button("Close")) {
+            deleted = true;
+        }
+    }
+
     ImGui::End();
 }
 

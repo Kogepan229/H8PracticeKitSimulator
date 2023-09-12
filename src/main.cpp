@@ -558,6 +558,17 @@ int main(int, char**) {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        // Process async gui
+        for (auto it = async_gui_list.begin(); it != async_gui_list.end();) {
+            it->get()->update();
+
+            if (it->get()->deleted) {
+                it = async_gui_list.erase(it);
+            } else {
+                it++;
+            }
+        }
+
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code
         // to learn more about Dear ImGui!).
         if (show_demo_window)
@@ -567,10 +578,6 @@ int main(int, char**) {
         {
             static float f     = 0.0f;
             static int counter = 0;
-
-            for (auto u : async_gui_list) {
-                u->update();
-            }
 
             ImGui::Begin("Hello, world ウィンドウだよ!");  // Create a window called "Hello, world!" and append into it.
 
