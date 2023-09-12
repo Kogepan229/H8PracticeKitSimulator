@@ -12,17 +12,18 @@
 
 namespace gui {
 
-DownloadFileGui::DownloadFileGui(std::string url, std::string desc_dir_path) {
-    content_length  = 0;
-    received_length = 0;
-    result_ft       = std::async(network::download_file, url, desc_dir_path, &content_length, &received_length);
+DownloadFileGui::DownloadFileGui(std::string window_name, std::string url, std::string desc_dir_path) {
+    this->window_name     = window_name;
+    this->content_length  = 0;
+    this->received_length = 0;
+    this->result_ft       = std::async(network::download_file, url, desc_dir_path, &content_length, &received_length);
 }
 
 DownloadFileGui::~DownloadFileGui() {
 }
 
 void DownloadFileGui::update() {
-    ImGui::Begin("Download file");
+    ImGui::Begin(window_name.c_str());
 
     if (result_ft.valid()) {
         using namespace std::chrono_literals;
