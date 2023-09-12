@@ -13,7 +13,9 @@
 #include <stdlib.h>  // abort
 
 #include <cassert>
+#include <memory>
 #include <string>
+#include <vector>
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -27,6 +29,7 @@
 
 #include "download_file.h"
 #include "font.h"
+#include "gui/download_file_gui.h"
 #include "lang.h"
 #include "project_version.h"
 
@@ -474,11 +477,11 @@ int main(int, char**) {
     // Load Fonts
     init::LoadFonts(io);
 
-    network::download_file(
-        "https://github.com/Kogepan229/Koge29_H8-3069F_Emulator/releases/latest/download/"
-        "h8-3069f_emulator-x86_64-pc-windows-msvc-0.1.1.zip",
-        "./download/"
-    );
+    // network::download_file(
+    //     "https://github.com/Kogepan229/Koge29_H8-3069F_Emulator/releases/latest/download/"
+    //     "h8-3069f_emulator-x86_64-pc-windows-msvc-0.1.1.zip",
+    //     "./download/"
+    // );
 
     // Upload Fonts
     {
@@ -514,6 +517,13 @@ int main(int, char**) {
     bool show_demo_window    = true;
     bool show_another_window = false;
     ImVec4 clear_color       = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    std::vector<std::shared_ptr<gui::AsyncGui>> async_gui_list = std::vector<std::shared_ptr<gui::AsyncGui>>();
+    async_gui_list.push_back(std::make_shared<gui::DownloadFileGui>(
+        "https://github.com/Kogepan229/Koge29_H8-3069F_Emulator/releases/latest/download/"
+        "h8-3069f_emulator-x86_64-pc-windows-msvc-0.1.1.zip",
+        "./download/"
+    ));
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -556,6 +566,10 @@ int main(int, char**) {
         {
             static float f     = 0.0f;
             static int counter = 0;
+
+            for (auto u : async_gui_list) {
+                u->update();
+            }
 
             ImGui::Begin("Hello, world ウィンドウだよ!");  // Create a window called "Hello, world!" and append into it.
 

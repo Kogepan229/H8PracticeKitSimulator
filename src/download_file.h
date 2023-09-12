@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 
 namespace network {
@@ -8,6 +10,8 @@ struct DownloadFileResult {
     std::string error;
 };
 
-DownloadFileResult download_file(std::string url, std::string file_dir_path);
+DownloadFileResult download_file(
+    std::string url, std::string desc_dir_path, int *const content_length, int *const received_length
+);
 
 }  // namespace network

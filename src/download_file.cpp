@@ -16,7 +16,7 @@ struct CallbackData {
     std::string redirect_url  = "";
     int content_length        = 0;
     int received_length       = 0;
-    std::string file_dir_path = "";
+    std::string desc_dir_path = "";
     std::string filename      = "";
     std::ofstream file;
     std::string error = "";
@@ -122,7 +122,7 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
         }
         // Create and open file
         if (!((CallbackData *)fn_data)->file.is_open()) {
-            std::string filename = ((CallbackData *)fn_data)->file_dir_path + ((CallbackData *)fn_data)->filename;
+            std::string filename = ((CallbackData *)fn_data)->desc_dir_path + ((CallbackData *)fn_data)->filename;
             ((CallbackData *)fn_data)->filename = filename;
             ((CallbackData *)fn_data)->file.open(filename, std::ios_base::out | std::ios_base::binary);
             if (((CallbackData *)fn_data)->file.fail()) {
@@ -160,10 +160,12 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
 
 namespace network {
 
-DownloadFileResult download_file(std::string url, std::string file_dir_path) {
+DownloadFileResult download_file(
+    std::string url, std::string desc_dir_path, int *const content_length, int *const received_length
+) {
     CallbackData callback_data  = CallbackData();
     callback_data.url           = url;
-    callback_data.file_dir_path = file_dir_path;
+    callback_data.desc_dir_path = desc_dir_path;
 
     // Init
     struct mg_mgr mgr;
@@ -191,19 +193,19 @@ DownloadFileResult download_file(std::string url, std::string file_dir_path) {
     }
 
     // Check exist file
-    if (std::filesystem::is_regular_file(callback_data.file_dir_path + callback_data.filename)) {
+    if (std::filesystem::is_regular_file(callback_data.desc_dir_path + callback_data.filename)) {
         std::string exist_file_error = "The file tried to download is already exist.";
         log::warn(exist_file_error);
         mg_mgr_free(&mgr);
-        return DownloadFileResult(callback_data.file_dir_path + callback_data.filename, exist_file_error);
+        return DownloadFileResult(callback_data.desc_dir_path + callback_data.filename, exist_file_error);
     }
 
     // Create directory
-    if (!callback_data.file_dir_path.ends_with("/")) {
-        callback_data.file_dir_path += "/";
+    if (!callback_data.desc_dir_path.ends_with("/")) {
+        callback_data.desc_dir_path += "/";
     }
     try {
-        std::filesystem::create_directories(callback_data.file_dir_path);
+        std::filesystem::create_directories(callback_data.desc_dir_path);
     } catch (std::filesystem::filesystem_error e) {
         log::error(e.what());
         callback_data.error = e.what();
@@ -216,6 +218,8 @@ DownloadFileResult download_file(std::string url, std::string file_dir_path) {
     mg_http_connect(&mgr, callback_data.url.c_str(), callback_get, &callback_data);
     while (!callback_data.done) {
         mg_mgr_poll(&mgr, 50);
+        *content_length  = callback_data.content_length;
+        *received_length = callback_data.received_length;
     }
 
     // Check error
@@ -225,7 +229,7 @@ DownloadFileResult download_file(std::string url, std::string file_dir_path) {
 
     mg_mgr_free(&mgr);
     log::debug("Complete download.");
-    return DownloadFileResult(callback_data.file_dir_path + callback_data.filename, "");
+    return DownloadFileResult(callback_data.desc_dir_path + callback_data.filename, "");
 }
 
 }  // namespace network
