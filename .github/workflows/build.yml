@@ -8,8 +8,8 @@ jobs:
   build-windows:
     runs-on: windows-2022
     env:
-      LLVM-MINGW_VERSION: 20230614
-      VULKAN_VERSION: 1.3.261.1
+      LLVM-MINGW_VERSION: 20231114
+      VULKAN_VERSION: 1.3.268.0
 
     steps:
       - uses: actions/checkout@v3
