@@ -78,9 +78,6 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
             ((CallbackData *)fn_data)->file.write((char *)c->recv.buf, c->recv.len);
             c->recv.len = 0;  // And cleanup the receive buffer. Streming!
             if (data[1] >= data[0]) {
-                if (((CallbackData *)fn_data)->file.is_open()) {
-                    ((CallbackData *)fn_data)->file.close();
-                }
                 ((CallbackData *)fn_data)->done = true;
                 return;
             }
@@ -100,16 +97,14 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
                     std::string err =
                         std::format("Failed download. url: {}, status: {}", ((CallbackData *)fn_data)->url, status);
                     ((CallbackData *)fn_data)->error = err;
-                    if (((CallbackData *)fn_data)->file.is_open()) {
-                        ((CallbackData *)fn_data)->file.close();
-                    }
-                    ((CallbackData *)fn_data)->done = true;
+                    ((CallbackData *)fn_data)->done  = true;
                     return;
                 }
             }
 
             if (n < 0) {
-                mg_error(c, "Bad response");
+                ((CallbackData *)fn_data)->error = "Bad response";
+                ((CallbackData *)fn_data)->done  = true;
                 return;
             }
             if (n > 0) {
@@ -120,9 +115,6 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
 
                 // End of receive
                 if (data[1] >= data[0]) {
-                    if (((CallbackData *)fn_data)->file.is_open()) {
-                        ((CallbackData *)fn_data)->file.close();
-                    }
                     ((CallbackData *)fn_data)->done = true;
                     return;
                 }
@@ -134,16 +126,13 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
         ((CallbackData *)fn_data)->received_length = data[1];
 
         if (((CallbackData *)fn_data)->file.fail()) {
-            log::error("Could not write to file to download.");
-            ((CallbackData *)fn_data)->file.close();
+            ((CallbackData *)fn_data)->error = "Could not write to file.";
+            ((CallbackData *)fn_data)->done  = true;
+            return;
         }
     } else if ((ev == MG_EV_ERROR) || (ev == MG_EV_CLOSE)) {
         if (ev == MG_EV_ERROR) {
             ((CallbackData *)fn_data)->error = std::string((char *)ev_data);
-            log::error(((CallbackData *)fn_data)->error);
-        }
-        if (((CallbackData *)fn_data)->file.is_open()) {
-            ((CallbackData *)fn_data)->file.close();
         }
         ((CallbackData *)fn_data)->done = true;
         return;
@@ -205,6 +194,11 @@ DownloadFileResult download_file(
 
         *content_length  = callback_data.content_length;
         *received_length = callback_data.received_length;
+    }
+
+    // Close file
+    if (callback_data.file.is_open()) {
+        callback_data.file.close();
     }
 
     // Check error
