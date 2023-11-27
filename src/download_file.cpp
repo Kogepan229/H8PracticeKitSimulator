@@ -67,9 +67,10 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
         size_t *data = (size_t *)c->data;
         if (data[0]) {
             data[1] += c->recv.len;
-            log::debug(std::format("0: {}/{}", data[1], data[0]));
             ((CallbackData *)fn_data)->file.write((char *)c->recv.buf, c->recv.len);
             c->recv.len = 0;  // cleanup the receive buffer
+
+            // End of receive
             if (data[1] >= data[0]) {
                 ((CallbackData *)fn_data)->done = true;
                 return;
@@ -79,12 +80,10 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
             int n = mg_http_parse((char *)c->recv.buf, c->recv.len, &hm);
 
             {  // Redirect
-                int status = mg_http_status(&hm);
-                log::debug(std::format("status: {}", status));
+                int status              = mg_http_status(&hm);
                 struct mg_str *location = mg_http_get_header(&hm, "Location");
                 if ((status == 301 || status == 302) && location != NULL) {
                     ((CallbackData *)fn_data)->redirect_url = conv_mg_str(location->len, location->ptr).get();
-                    log::debug(std::format("location: {}", ((CallbackData *)fn_data)->redirect_url));
                     return;
                 } else if (status != 0 && status != 200) {
                     std::string err =
@@ -168,26 +167,29 @@ DownloadFileResult download_file(
     }
 
     // Download file
-    struct mg_mgr mgr;
-    mg_mgr_init(&mgr);
+    {
+        struct mg_mgr mgr;
+        mg_mgr_init(&mgr);
 
-    mg_http_connect(&mgr, callback_data.url.c_str(), callback_get, &callback_data);
-    while (!callback_data.done) {
-        mg_mgr_poll(&mgr, 50);
+        mg_http_connect(&mgr, callback_data.url.c_str(), callback_get, &callback_data);
+        while (!callback_data.done) {
+            mg_mgr_poll(&mgr, 50);
 
-        // Redirect
-        if (!callback_data.redirect_url.empty()) {
-            while (!callback_data.done) {
-                mg_mgr_poll(&mgr, 50);
+            // Redirect
+            if (!callback_data.redirect_url.empty()) {
+                while (!callback_data.done) {
+                    mg_mgr_poll(&mgr, 50);
+                }
+                callback_data.done = false;
+                callback_data.url  = callback_data.redirect_url;
+                callback_data.redirect_url.clear();
+                mg_http_connect(&mgr, callback_data.url.c_str(), callback_get, &callback_data);
             }
-            callback_data.done = false;
-            callback_data.url  = callback_data.redirect_url;
-            callback_data.redirect_url.clear();
-            mg_http_connect(&mgr, callback_data.url.c_str(), callback_get, &callback_data);
-        }
 
-        *content_length  = callback_data.content_length;
-        *received_length = callback_data.received_length;
+            *content_length  = callback_data.content_length;
+            *received_length = callback_data.received_length;
+        }
+        mg_mgr_free(&mgr);
     }
 
     // Close file
@@ -197,12 +199,10 @@ DownloadFileResult download_file(
 
     // Check error
     if (!callback_data.error.empty()) {
-        mg_mgr_free(&mgr);
         log::error(callback_data.error);
         return DownloadFileResult("", callback_data.error);
     }
 
-    mg_mgr_free(&mgr);
     log::debug("Complete download.");
     return DownloadFileResult(callback_data.filepath, "");
 }
