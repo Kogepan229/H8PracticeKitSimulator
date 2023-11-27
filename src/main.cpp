@@ -48,9 +48,6 @@ int main(int, char**) {
     // Load Fonts
     init::load_fonts();
 
-    // Upload Fonts
-    graphics::init::upload_fonts();
-
     ImGuiIO& io = ImGui::GetIO();
 
     // Our state

@@ -9,7 +9,6 @@ namespace init {
 
 int init_window(std::string window_name);
 void init_imgui();
-void upload_fonts();
 
 }  // namespace init
 

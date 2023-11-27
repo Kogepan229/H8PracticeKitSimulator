@@ -1,6 +1,7 @@
 #include "download_file.h"
 
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -9,6 +10,7 @@
 #include "cert.h"
 #include "log.h"
 #include "mongoose.h"
+#include "utils.h"
 
 struct CallbackData {
     bool done                 = false;
@@ -21,27 +23,6 @@ struct CallbackData {
     std::ofstream file;
     std::string error = "";
 };
-
-static std::unique_ptr<char[]> conv_mg_str(size_t len, const char *str) {
-    auto s = std::make_unique<char[]>(len + 1);
-    memcpy(s.get(), str, len);
-    s[len] = '\0';
-    return s;
-}
-
-static size_t send_request_head(struct mg_connection *c, std::string url) {
-    struct mg_str host = mg_url_host(url.c_str());
-    // Send request
-    // printf("send head: %s\n", mg_url_uri(url.c_str()));
-    int result = mg_printf(
-        c,
-        "HEAD %s HTTP/1.0\r\n"
-        "Host: %.*s\r\n"
-        "\r\n",
-        mg_url_uri(url.c_str()), (int)host.len, host.ptr
-    );
-    return result;
-}
 
 static size_t send_request_get(struct mg_connection *c, std::string url) {
     struct mg_str host = mg_url_host(url.c_str());
@@ -57,69 +38,24 @@ static size_t send_request_get(struct mg_connection *c, std::string url) {
     return result;
 }
 
-static void callback_head(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
-    struct mg_http_message *hm = (struct mg_http_message *)ev_data;
-    if (ev == MG_EV_CONNECT) {
-        send_request_head(c, ((CallbackData *)fn_data)->url);
-    }
-    if (ev == MG_EV_HTTP_MSG) {
-        int status              = mg_http_status(hm);
-        struct mg_str *location = mg_http_get_header(hm, "Location");
-
-        // Redirect
-        if ((status == 301 || status == 302) && location != NULL) {
-            auto s                                  = conv_mg_str((int)location->len, location->ptr);
-            ((CallbackData *)fn_data)->redirect_url = std::string(s.get());
-            return;
-        }
-        // Read header
-        else {
-            // Read filename
-            struct mg_str *content_disposition = mg_http_get_header(hm, "Content-Disposition");
-            if (content_disposition != NULL) {
-                auto filename = mg_http_get_header_var(*content_disposition, mg_str("filename"));
-                if (filename.len > 0) {
-                    ((CallbackData *)fn_data)->filename = std::string(conv_mg_str(filename.len, filename.ptr).get());
-                } else {
-                    log::error("Could not get filename from header.");
-                }
-            } else {
-                log::error("Could not get filename from header.");
-            }
-
-            // Read content length
-            struct mg_str *content_length = mg_http_get_header(hm, "Content-Length");
-            if (content_length != NULL) {
-                ((CallbackData *)fn_data)->content_length =
-                    std::stoi(std::string(conv_mg_str(content_length->len, content_length->ptr).get()));
-            }
-        }
-        ((CallbackData *)fn_data)->done = true;
-    }
-    if ((ev == MG_EV_ERROR) || (ev == MG_EV_CLOSE)) {
-        if (ev == MG_EV_ERROR) {
-            ((CallbackData *)fn_data)->error = std::string((char *)ev_data);
-            log::error(((CallbackData *)fn_data)->error);
-            ((CallbackData *)fn_data)->done = true;
-        }
-        return;
-    }
-}
-
 static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
-    struct mg_http_message *hm = (struct mg_http_message *)ev_data;
     if (ev == MG_EV_CONNECT) {
+        if (mg_url_is_ssl(((CallbackData *)fn_data)->url.c_str())) {
+            struct mg_str host      = mg_url_host(((CallbackData *)fn_data)->url.c_str());
+            struct mg_tls_opts opts = {.ca = get_cert(), .name = host};
+            mg_tls_init(c, &opts);
+        }
         send_request_get(c, ((CallbackData *)fn_data)->url);
     }
-    if (ev == MG_EV_HTTP_CHUNK) {
-        // End of receive
-        if (hm->chunk.len == 0) {
-            if (((CallbackData *)fn_data)->file.is_open()) {
-                ((CallbackData *)fn_data)->file.close();
-            }
-            ((CallbackData *)fn_data)->done = true;
-            return;
+    // End of receive
+    if (ev == MG_EV_CLOSE) {
+        if (((CallbackData *)fn_data)->file.is_open()) {
+            ((CallbackData *)fn_data)->file.close();
         }
+        ((CallbackData *)fn_data)->done = true;
+        return;
+    }
+    if (ev == MG_EV_READ) {
         // Create and open file
         if (!((CallbackData *)fn_data)->file.is_open()) {
             std::string filename = ((CallbackData *)fn_data)->desc_dir_path + ((CallbackData *)fn_data)->filename;
@@ -130,17 +66,50 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
                 ((CallbackData *)fn_data)->file.close();
             }
         }
-        // Write to file
-        ((CallbackData *)fn_data)->file.write(hm->chunk.ptr, hm->chunk.len);
-        mg_http_delete_chunk(c, hm);
+
+        // Write received data to file
+        size_t *data = (size_t *)c->data;
+        if (data[0]) {
+            data[1] += c->recv.len;
+            ((CallbackData *)fn_data)->file.write((char *)c->recv.buf, c->recv.len);
+            c->recv.len = 0;  // And cleanup the receive buffer. Streming!
+            if (data[1] >= data[0]) {
+                if (((CallbackData *)fn_data)->file.is_open()) {
+                    ((CallbackData *)fn_data)->file.close();
+                }
+                ((CallbackData *)fn_data)->done = true;
+                return;
+            }
+        } else {
+            struct mg_http_message hm;
+            int n = mg_http_parse((char *)c->recv.buf, c->recv.len, &hm);
+            if (n < 0)
+                mg_error(c, "Bad response");
+            if (n > 0) {
+                ((CallbackData *)fn_data)->file.write((char *)c->recv.buf + n, c->recv.len - n);
+                data[0] = n + hm.body.len;
+                data[1] += c->recv.len;
+                c->recv.len = 0;  // Cleanup receive buffer
+
+                // End of receive
+                if (data[1] >= data[0]) {
+                    if (((CallbackData *)fn_data)->file.is_open()) {
+                        ((CallbackData *)fn_data)->file.close();
+                    }
+                    ((CallbackData *)fn_data)->done = true;
+                    return;
+                }
+            }
+        }
+
+        // Update progress
+        ((CallbackData *)fn_data)->content_length  = data[0];
+        ((CallbackData *)fn_data)->received_length = data[1];
+
         if (((CallbackData *)fn_data)->file.fail()) {
             printf("Could not write to file to download.\n");
             ((CallbackData *)fn_data)->file.close();
         }
-
-        // Update progress
-        ((CallbackData *)fn_data)->received_length += hm->chunk.len;
-        // printf("%d/%d\n", ((CallbackData *)fn_data)->received_length, ((CallbackData *)fn_data)->content_length);
     }
     if (ev == MG_EV_HTTP_MSG) {
         ((CallbackData *)fn_data)->done = true;
@@ -167,36 +136,15 @@ DownloadFileResult download_file(
     callback_data.url           = url;
     callback_data.desc_dir_path = desc_dir_path;
 
-    // Init
-    struct mg_mgr mgr;
-    mg_mgr_init(&mgr);
-    struct mg_tls_opts opts = {.client_ca = get_cert()};
-    mg_tls_ctx_init(&mgr, &opts);
-
-    // Get Header to get content-length and filename
-    mg_http_connect(&mgr, callback_data.url.c_str(), callback_head, &callback_data);
-    while (!callback_data.done) {
-        mg_mgr_poll(&mgr, 50);
-        if (!callback_data.redirect_url.empty()) {
-            log::debug("redirect to: " + callback_data.redirect_url);
-            callback_data.url = callback_data.redirect_url;
-            callback_data.redirect_url.clear();
-            mg_http_connect(&mgr, callback_data.url.c_str(), callback_head, &callback_data);
-        }
-    }
-
-    // Check error
-    if (!callback_data.error.empty()) {
-        log::error(callback_data.error);
-        mg_mgr_free(&mgr);
-        return DownloadFileResult("", callback_data.error);
+    {
+        auto strs              = utils::split_str(url, "/");
+        callback_data.filename = strs[strs.size() - 1];
     }
 
     // Check exist file
     if (std::filesystem::is_regular_file(callback_data.desc_dir_path + callback_data.filename)) {
         std::string exist_file_error = "The file tried to download is already exist.";
         log::warn(exist_file_error);
-        mg_mgr_free(&mgr);
         return DownloadFileResult(callback_data.desc_dir_path + callback_data.filename, exist_file_error);
     }
 
@@ -209,11 +157,13 @@ DownloadFileResult download_file(
     } catch (std::filesystem::filesystem_error e) {
         log::error(e.what());
         callback_data.error = e.what();
-        mg_mgr_free(&mgr);
         return DownloadFileResult("", callback_data.error);
     }
 
     // Download file
+    struct mg_mgr mgr;
+    mg_mgr_init(&mgr);
+
     callback_data.done = false;
     mg_http_connect(&mgr, callback_data.url.c_str(), callback_get, &callback_data);
     while (!callback_data.done) {

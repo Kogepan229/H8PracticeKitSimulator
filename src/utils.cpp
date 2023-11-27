@@ -2,6 +2,7 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace utils {
 
@@ -21,6 +22,27 @@ std::pair<std::string, std::string> split_str_on_first(const std::string &src, c
         }
     }
     return {s1, s2};
+}
+
+std::vector<std::string> split_str(std::string str, std::string separator) {
+    std::vector<std::string> out;
+
+    int len = separator.length();
+    if (len == 0) {
+        out.push_back(str);
+    } else {
+        int offset = 0;
+        while (true) {
+            int pos = str.find(separator, offset);
+            if (pos < 0) {
+                out.push_back(str.substr(offset));
+                break;
+            }
+            out.push_back(str.substr(offset, pos - offset));
+            offset = pos + len;
+        }
+    }
+    return out;
 }
 
 }  // namespace utils

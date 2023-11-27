@@ -227,7 +227,8 @@ static void SetupVulkanWindow(ImGui_ImplVulkanH_Window* wd, VkSurfaceKHR surface
 
     // Select Surface Format
     const VkFormat requestSurfaceImageFormat[] = {
-        VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_B8G8R8_UNORM, VK_FORMAT_R8G8B8_UNORM};
+        VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_B8G8R8_UNORM, VK_FORMAT_R8G8B8_UNORM
+    };
     const VkColorSpaceKHR requestSurfaceColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
     wd->SurfaceFormat                              = ImGui_ImplVulkanH_SelectSurfaceFormat(
         g_PhysicalDevice, wd->Surface, requestSurfaceImageFormat, (size_t)IM_ARRAYSIZE(requestSurfaceImageFormat),
@@ -237,7 +238,8 @@ static void SetupVulkanWindow(ImGui_ImplVulkanH_Window* wd, VkSurfaceKHR surface
     // Select Present Mode
 #ifdef IMGUI_UNLIMITED_FRAME_RATE
     VkPresentModeKHR present_modes[] = {
-        VK_PRESENT_MODE_MAILBOX_KHR, VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR};
+        VK_PRESENT_MODE_MAILBOX_KHR, VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR
+    };
 #else
     VkPresentModeKHR present_modes[] = {VK_PRESENT_MODE_FIFO_KHR};
 #endif
@@ -455,35 +457,6 @@ void init_imgui() {
     init_info.Allocator                 = g_Allocator;
     init_info.CheckVkResultFn           = check_vk_result;
     ImGui_ImplVulkan_Init(&init_info, (&g_MainWindowData)->RenderPass);
-}
-
-void upload_fonts() {
-    // Use any command queue
-    VkCommandPool command_pool     = (&g_MainWindowData)->Frames[(&g_MainWindowData)->FrameIndex].CommandPool;
-    VkCommandBuffer command_buffer = (&g_MainWindowData)->Frames[(&g_MainWindowData)->FrameIndex].CommandBuffer;
-
-    VkResult err = vkResetCommandPool(g_Device, command_pool, 0);
-    check_vk_result(err);
-    VkCommandBufferBeginInfo begin_info = {};
-    begin_info.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    begin_info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-    err = vkBeginCommandBuffer(command_buffer, &begin_info);
-    check_vk_result(err);
-
-    ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
-
-    VkSubmitInfo end_info       = {};
-    end_info.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    end_info.commandBufferCount = 1;
-    end_info.pCommandBuffers    = &command_buffer;
-    err                         = vkEndCommandBuffer(command_buffer);
-    check_vk_result(err);
-    err = vkQueueSubmit(g_Queue, 1, &end_info, VK_NULL_HANDLE);
-    check_vk_result(err);
-
-    err = vkDeviceWaitIdle(g_Device);
-    check_vk_result(err);
-    ImGui_ImplVulkan_DestroyFontUploadObjects();
 }
 
 }  // namespace init
