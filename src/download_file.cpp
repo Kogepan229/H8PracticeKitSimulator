@@ -76,7 +76,7 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
             data[1] += c->recv.len;
             log::debug(std::format("0: {}/{}", data[1], data[0]));
             ((CallbackData *)fn_data)->file.write((char *)c->recv.buf, c->recv.len);
-            c->recv.len = 0;  // And cleanup the receive buffer. Streming!
+            c->recv.len = 0;  // cleanup the receive buffer
             if (data[1] >= data[0]) {
                 ((CallbackData *)fn_data)->done = true;
                 return;
@@ -85,7 +85,7 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
             struct mg_http_message hm;
             int n = mg_http_parse((char *)c->recv.buf, c->recv.len, &hm);
 
-            {  // redirect
+            {  // Redirect
                 int status = mg_http_status(&hm);
                 log::debug(std::format("status: {}", status));
                 struct mg_str *location = mg_http_get_header(&hm, "Location");
@@ -111,7 +111,7 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
                 ((CallbackData *)fn_data)->file.write((char *)c->recv.buf + n, c->recv.len - n);
                 data[0] = n + hm.body.len;
                 data[1] += c->recv.len;
-                c->recv.len = 0;  // Cleanup receive buffer
+                c->recv.len = 0;  // Cleanup the receive buffer
 
                 // End of receive
                 if (data[1] >= data[0]) {
@@ -181,7 +181,7 @@ DownloadFileResult download_file(
     while (!callback_data.done) {
         mg_mgr_poll(&mgr, 50);
 
-        // redirect
+        // Redirect
         if (!callback_data.redirect_url.empty()) {
             while (!callback_data.done) {
                 mg_mgr_poll(&mgr, 50);
