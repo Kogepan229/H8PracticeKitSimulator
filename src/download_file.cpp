@@ -57,8 +57,9 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
             ((CallbackData *)fn_data)
                 ->file.open(((CallbackData *)fn_data)->filepath, std::ios_base::out | std::ios_base::binary);
             if (((CallbackData *)fn_data)->file.fail()) {
-                printf("Could not open file to download.\n");
-                ((CallbackData *)fn_data)->file.close();
+                ((CallbackData *)fn_data)->error = "Could not open file to download.";
+                ((CallbackData *)fn_data)->done  = true;
+                return;
             }
         }
 
