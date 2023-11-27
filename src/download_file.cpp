@@ -51,14 +51,6 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
             mg_tls_init(c, &opts);
         }
         send_request_get(c, ((CallbackData *)fn_data)->url);
-    }
-    // End of receive
-    else if (ev == MG_EV_CLOSE) {
-        if (((CallbackData *)fn_data)->file.is_open()) {
-            ((CallbackData *)fn_data)->file.close();
-        }
-        ((CallbackData *)fn_data)->done = true;
-        return;
     } else if (ev == MG_EV_READ) {
         // Create and open file
         if (!((CallbackData *)fn_data)->file.is_open()) {
@@ -130,10 +122,11 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
             ((CallbackData *)fn_data)->done  = true;
             return;
         }
-    } else if ((ev == MG_EV_ERROR) || (ev == MG_EV_CLOSE)) {
-        if (ev == MG_EV_ERROR) {
-            ((CallbackData *)fn_data)->error = std::string((char *)ev_data);
-        }
+    } else if (ev == MG_EV_ERROR) {
+        ((CallbackData *)fn_data)->error = std::string((char *)ev_data);
+        ((CallbackData *)fn_data)->done  = true;
+        return;
+    } else if (ev == MG_EV_CLOSE) {
         ((CallbackData *)fn_data)->done = true;
         return;
     }
