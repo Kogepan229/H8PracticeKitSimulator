@@ -10,7 +10,7 @@ set(CORE_SOURCES
 
 set(GUI_SOURCES
     gui/async_gui.cpp
-    gui/download_file_gui.cpp
+    gui/download_emulator_gui.cpp
 )
 
 set(H8PKS_SOURCES ${CORE_SOURCES} ${GUI_SOURCES})

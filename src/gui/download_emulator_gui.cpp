@@ -1,4 +1,4 @@
-#include "download_file_gui.h"
+#include "download_emulator_gui.h"
 
 #include <download_file.h>
 
@@ -6,23 +6,22 @@
 #include <future>
 #include <thread>
 
-#include "gui/async_gui.h"
-#include "gui/download_file_gui.h"
+#include "async_gui.h"
 #include "imgui.h"
 
 namespace gui {
 
-DownloadFileGui::DownloadFileGui(std::string window_name, std::string url, std::string desc_dir_path) {
+DownloadEmulatorGui::DownloadEmulatorGui(std::string window_name, std::string url, std::string desc_dir_path) {
     this->window_name     = window_name;
     this->content_length  = 0;
     this->received_length = 0;
     this->result_ft       = std::async(network::download_file, url, desc_dir_path, &content_length, &received_length);
 }
 
-DownloadFileGui::~DownloadFileGui() {
+DownloadEmulatorGui::~DownloadEmulatorGui() {
 }
 
-void DownloadFileGui::update() {
+void DownloadEmulatorGui::update() {
     ImGui::Begin(window_name.c_str());
 
     if (result_ft.valid()) {

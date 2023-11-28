@@ -19,7 +19,7 @@
 #include "download_file.h"
 #include "font.h"
 #include "graphics.h"
-#include "gui/download_file_gui.h"
+#include "gui/download_emulator_gui.h"
 #include "imgui.h"
 #include "lang.h"
 #include "project_version.h"
@@ -56,7 +56,7 @@ int main(int, char**) {
     ImVec4 clear_color       = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     std::vector<std::shared_ptr<gui::AsyncGui>> async_gui_list = std::vector<std::shared_ptr<gui::AsyncGui>>();
-    async_gui_list.push_back(std::make_shared<gui::DownloadFileGui>(
+    async_gui_list.push_back(std::make_shared<gui::DownloadEmulatorGui>(
         "Download Emulator",
         "https://github.com/Kogepan229/Koge29_H8-3069F_Emulator/releases/latest/download/"
         "h8-3069f_emulator-x86_64-pc-windows-msvc-0.1.1.zip",

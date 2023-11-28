@@ -8,7 +8,7 @@
 
 namespace gui {
 
-class DownloadFileGui : public gui::AsyncGui {
+class DownloadEmulatorGui : public gui::AsyncGui {
     std::string window_name;
     bool finished;
     std::future<network::DownloadFileResult> result_ft;
@@ -16,8 +16,8 @@ class DownloadFileGui : public gui::AsyncGui {
     void update() override;
 
    public:
-    DownloadFileGui(std::string window_name, std::string url, std::string desc_dir_path);
-    virtual ~DownloadFileGui();
+    DownloadEmulatorGui(std::string window_name, std::string url, std::string desc_dir_path);
+    virtual ~DownloadEmulatorGui();
     int content_length;
     int received_length;
 };
