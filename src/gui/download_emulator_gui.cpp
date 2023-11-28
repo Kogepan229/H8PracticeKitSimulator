@@ -14,7 +14,7 @@
 
 namespace gui {
 
-std::string unzip(const elz::path &archive, const elz::path &target, const std::__1::string &password) {
+std::string unzip(const elz::path &archive, const elz::path &target, const std::string &password) {
     try {
         elz::extractZip(archive, target, password);
     } catch (elz::zip_exception e) {
