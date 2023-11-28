@@ -10,3 +10,6 @@
 [submodule "libraries/mongoose"]
 	path = libraries/mongoose
 	url = https://github.com/cesanta/mongoose.git
+[submodule "libraries/elzip"]
+	path = libraries/elzip
+	url = https://github.com/Sygmei/11Zip.git

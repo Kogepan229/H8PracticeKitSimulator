@@ -56,9 +56,12 @@ set(MONGOOSE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libraries/mongoose)
 include_directories(${MONGOOSE_DIR})
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMG_TLS=MG_TLS_MBED")
 
+# 11zip
+add_subdirectory(libraries/elzip)
+
 # Libraries
 find_package(Vulkan REQUIRED)
-set(LIBRARIES "glfw;Vulkan::Vulkan;MbedTLS::mbedtls;MbedTLS::mbedcrypto;MbedTLS::mbedx509")
+set(LIBRARIES "glfw;Vulkan::Vulkan;MbedTLS::mbedtls;MbedTLS::mbedcrypto;MbedTLS::mbedx509;elzip")
 if (WIN32)
     set (LIBRARIES "${LIBRARIES};ws2_32")
 endif()
