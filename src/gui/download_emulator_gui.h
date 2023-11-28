@@ -8,11 +8,20 @@
 
 namespace gui {
 
+enum class DownloadEmulatorStatus {
+    DOWNLOAD,
+    UNZIP,
+    FINISHED,
+    ERROR,
+};
+
 class DownloadEmulatorGui : public gui::AsyncGui {
     std::string window_name;
-    bool finished;
-    std::future<network::DownloadFileResult> result_ft;
-    network::DownloadFileResult result;
+    DownloadEmulatorStatus status;
+    std::string error_message;
+    std::string zip_file_path;
+    std::future<network::DownloadFileResult> result_ft_download;
+    std::future<std::string> result_ft_unzip;
     void update() override;
 
    public:
