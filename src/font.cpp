@@ -609,12 +609,12 @@ bool load_fonts() {
 
     // Load Roboto
     auto font =
-        io.Fonts->AddFontFromFileTTF((std::string(FONTS_DIR_PATH) + "/Roboto/Roboto-Regular.ttf").c_str(), 20.0f);
+        io.Fonts->AddFontFromFileTTF((std::string(FONTS_DIR_PATH) + "/Roboto/Roboto-Regular.ttf").c_str(), 18.0f);
     assert(font != nullptr);
 
     // Load NotoSansJP
     font = io.Fonts->AddFontFromFileTTF(
-        (std::string(FONTS_DIR_PATH) + "/Noto_Sans_JP/NotoSansJP-Regular.ttf").c_str(), 22.0f, &config,
+        (std::string(FONTS_DIR_PATH) + "/Noto_Sans_JP/NotoSansJP-Regular.ttf").c_str(), 18.0f, &config,
         glyphRangesJapanese
     );
     assert(font != nullptr);
