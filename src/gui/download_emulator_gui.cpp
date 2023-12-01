@@ -87,10 +87,12 @@ void DownloadEmulatorGui::update() {
                     std::string result = result_ft_unzip.get();
                     if (result.empty()) {
                         status = DownloadEmulatorStatus::FINISHED;
-                        std::filesystem::remove(zip_file_path);
                     } else {
                         status        = DownloadEmulatorStatus::ERROR;
                         error_message = result;
+                    }
+                    if (std::filesystem::exists(zip_file_path)) {
+                        std::filesystem::remove(zip_file_path);
                     }
                 }
             }
