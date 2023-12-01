@@ -36,7 +36,14 @@ DownloadEmulatorGui::~DownloadEmulatorGui() {
 }
 
 void DownloadEmulatorGui::update() {
-    ImGui::Begin(window_name.c_str(), (bool *)0, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse);
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowSize(ImVec2(550, 150), ImGuiCond_Appearing);
+
+    if (!ImGui::BeginPopupModal(window_name.c_str(), NULL, ImGuiWindowFlags_NoSavedSettings)) {
+        ImGui::OpenPopup(window_name.c_str());
+        return;
+    }
 
     switch (status) {
         case DownloadEmulatorStatus::DOWNLOAD:
@@ -104,11 +111,12 @@ void DownloadEmulatorGui::update() {
 
     if (status == DownloadEmulatorStatus::FINISHED || status == DownloadEmulatorStatus::ERROR) {
         if (ImGui::Button("Close")) {
+            ImGui::CloseCurrentPopup();
             deleted = true;
         }
     }
 
-    ImGui::End();
+    ImGui::EndPopup();
 }
 
 }  // namespace gui
