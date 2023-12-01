@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <filesystem>
+#include <format>
 #include <future>
 #include <thread>
 
@@ -107,7 +108,13 @@ void DownloadEmulatorGui::update() {
             break;
     }
 
-    ImGui::Text("%d/%d", received_length, content_length);
+    // ImGui::Text("%d/%d", received_length, content_length);
+    if (content_length > 0) {
+        ImGui::ProgressBar(
+            (float)received_length / (float)content_length, ImVec2(-1, 0.0f),
+            std::format("{}/{}", received_length, content_length).c_str()
+        );
+    }
 
     if (status == DownloadEmulatorStatus::FINISHED || status == DownloadEmulatorStatus::ERROR) {
         if (ImGui::Button("Close")) {
