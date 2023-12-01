@@ -36,7 +36,7 @@ DownloadEmulatorGui::~DownloadEmulatorGui() {
 }
 
 void DownloadEmulatorGui::update() {
-    ImGui::Begin(window_name.c_str());
+    ImGui::Begin(window_name.c_str(), (bool *)0, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse);
 
     switch (status) {
         case DownloadEmulatorStatus::DOWNLOAD:
