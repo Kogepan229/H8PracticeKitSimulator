@@ -70,11 +70,6 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
             ((CallbackData *)fn_data)->file.write((char *)c->recv.buf, c->recv.len);
             c->recv.len = 0;  // cleanup the receive buffer
 
-            // End of receive
-            if (data[1] >= data[0]) {
-                ((CallbackData *)fn_data)->done = true;
-                return;
-            }
         } else {
             struct mg_http_message hm;
             int n = mg_http_parse((char *)c->recv.buf, c->recv.len, &hm);
@@ -104,18 +99,18 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
                 data[0] = n + hm.body.len;
                 data[1] += c->recv.len;
                 c->recv.len = 0;  // Cleanup the receive buffer
-
-                // End of receive
-                if (data[1] >= data[0]) {
-                    ((CallbackData *)fn_data)->done = true;
-                    return;
-                }
             }
         }
 
         // Update progress
         ((CallbackData *)fn_data)->content_length  = data[0];
         ((CallbackData *)fn_data)->received_length = data[1];
+
+        // End of receive
+        if (data[0] != 0 && data[1] >= data[0]) {
+            ((CallbackData *)fn_data)->done = true;
+            return;
+        }
 
         if (((CallbackData *)fn_data)->file.fail()) {
             ((CallbackData *)fn_data)->error = "Could not write to file.";
