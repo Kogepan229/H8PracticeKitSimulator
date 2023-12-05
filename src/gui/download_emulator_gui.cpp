@@ -2,13 +2,10 @@
 
 #include <download_file.h>
 
-#include <chrono>
 #include <filesystem>
 #include <format>
 #include <future>
-#include <thread>
 
-#include "async_gui.h"
 #include "elzip.hpp"
 #include "imgui.h"
 #include "log.h"

@@ -9,14 +9,10 @@
 //   the backend itself (imgui_impl_vulkan.cpp), but should PROBABLY NOT be used by your own engine/app code.
 // Read comments in imgui_impl_vulkan.h.
 
-#include <stdio.h>   // printf, fprintf
-#include <stdlib.h>  // abort
-
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "download_file.h"
 #include "font.h"
 #include "graphics.h"
 #include "gui/download_emulator_gui.h"
