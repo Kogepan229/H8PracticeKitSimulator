@@ -26,7 +26,6 @@ std::string unzip(const elz::path &archive, const elz::path &target, const std::
 
 DownloadEmulatorGui::DownloadEmulatorGui(std::string window_name, std::string url, std::string desc_dir_path) {
     this->window_name     = window_name;
-    this->deleted         = false;
     this->content_length  = 0;
     this->received_length = 0;
     this->status          = DownloadEmulatorStatus::DOWNLOAD;
