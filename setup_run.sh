@@ -1,0 +1,1 @@
+cp -r ./assets ./build/src/
