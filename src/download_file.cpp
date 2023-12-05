@@ -44,30 +44,31 @@ static size_t send_request_get(struct mg_connection *c, std::string url) {
 }
 
 static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
+    CallbackData *cb_data = static_cast<CallbackData *>(fn_data);
+
     if (ev == MG_EV_CONNECT) {
-        if (mg_url_is_ssl(((CallbackData *)fn_data)->url.c_str())) {
-            struct mg_str host      = mg_url_host(((CallbackData *)fn_data)->url.c_str());
+        if (mg_url_is_ssl(cb_data->url.c_str())) {
+            struct mg_str host      = mg_url_host(cb_data->url.c_str());
             struct mg_tls_opts opts = {.ca = get_cert(), .name = host};
             mg_tls_init(c, &opts);
         }
-        send_request_get(c, ((CallbackData *)fn_data)->url);
+        send_request_get(c, cb_data->url);
     } else if (ev == MG_EV_READ) {
         // Create and open file
-        if (!((CallbackData *)fn_data)->file.is_open()) {
-            ((CallbackData *)fn_data)
-                ->file.open(((CallbackData *)fn_data)->filepath, std::ios_base::out | std::ios_base::binary);
-            if (((CallbackData *)fn_data)->file.fail()) {
-                ((CallbackData *)fn_data)->error = "Could not open file to download.";
-                ((CallbackData *)fn_data)->done  = true;
+        if (!cb_data->file.is_open()) {
+            cb_data->file.open(cb_data->filepath, std::ios_base::out | std::ios_base::binary);
+            if (cb_data->file.fail()) {
+                cb_data->error = "Could not open file to download.";
+                cb_data->done  = true;
                 return;
             }
         }
 
         // Write received data to file
-        size_t *data = (size_t *)c->data;
-        if (data[0]) {
-            data[1] += c->recv.len;
-            ((CallbackData *)fn_data)->file.write((char *)c->recv.buf, c->recv.len);
+        size_t *c_data = (size_t *)c->data;
+        if (c_data[0]) {
+            c_data[1] += c->recv.len;
+            cb_data->file.write((char *)c->recv.buf, c->recv.len);
             c->recv.len = 0;  // cleanup the receive buffer
 
         } else {
@@ -78,51 +79,50 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
                 int status              = mg_http_status(&hm);
                 struct mg_str *location = mg_http_get_header(&hm, "Location");
                 if ((status == 301 || status == 302) && location != NULL) {
-                    ((CallbackData *)fn_data)->redirect_url = conv_mg_str(location->len, location->ptr).get();
+                    cb_data->redirect_url = conv_mg_str(location->len, location->ptr).get();
                     return;
                 } else if (status != 0 && status != 200) {
-                    std::string err =
-                        std::format("Failed download. url: {}, status: {}", ((CallbackData *)fn_data)->url, status);
-                    ((CallbackData *)fn_data)->error = err;
-                    ((CallbackData *)fn_data)->done  = true;
+                    std::string err = std::format("Failed download. url: {}, status: {}", cb_data->url, status);
+                    cb_data->error  = err;
+                    cb_data->done   = true;
                     return;
                 }
             }
 
             if (n < 0) {
-                ((CallbackData *)fn_data)->error = "Bad response";
-                ((CallbackData *)fn_data)->done  = true;
+                cb_data->error = "Bad response";
+                cb_data->done  = true;
                 return;
             }
             if (n > 0) {
-                ((CallbackData *)fn_data)->file.write((char *)c->recv.buf + n, c->recv.len - n);
-                data[0] = n + hm.body.len;
-                data[1] += c->recv.len;
+                cb_data->file.write((char *)c->recv.buf + n, c->recv.len - n);
+                c_data[0] = n + hm.body.len;
+                c_data[1] += c->recv.len;
                 c->recv.len = 0;  // Cleanup the receive buffer
             }
         }
 
         // Update progress
-        ((CallbackData *)fn_data)->content_length  = data[0];
-        ((CallbackData *)fn_data)->received_length = data[1];
+        cb_data->content_length  = c_data[0];
+        cb_data->received_length = c_data[1];
 
         // End of receive
-        if (data[0] != 0 && data[1] >= data[0]) {
-            ((CallbackData *)fn_data)->done = true;
+        if (c_data[0] != 0 && c_data[1] >= c_data[0]) {
+            cb_data->done = true;
             return;
         }
 
-        if (((CallbackData *)fn_data)->file.fail()) {
-            ((CallbackData *)fn_data)->error = "Could not write to file.";
-            ((CallbackData *)fn_data)->done  = true;
+        if (cb_data->file.fail()) {
+            cb_data->error = "Could not write to file.";
+            cb_data->done  = true;
             return;
         }
     } else if (ev == MG_EV_ERROR) {
-        ((CallbackData *)fn_data)->error = std::string((char *)ev_data);
-        ((CallbackData *)fn_data)->done  = true;
+        cb_data->error = std::string((char *)ev_data);
+        cb_data->done  = true;
         return;
     } else if (ev == MG_EV_CLOSE) {
-        ((CallbackData *)fn_data)->done = true;
+        cb_data->done = true;
         return;
     }
 }
