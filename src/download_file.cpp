@@ -74,7 +74,7 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
             struct mg_http_message hm;
             int n = mg_http_parse((char *)c->recv.buf, c->recv.len, &hm);
 
-            {  // Redirect
+            if (hm.uri.ptr) {  // Redirect
                 int status              = mg_http_status(&hm);
                 struct mg_str *location = mg_http_get_header(&hm, "Location");
                 if ((status == 301 || status == 302) && location != NULL) {
