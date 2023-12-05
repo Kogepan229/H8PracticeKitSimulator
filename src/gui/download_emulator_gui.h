@@ -16,19 +16,20 @@ enum class DownloadEmulatorStatus {
 };
 
 class DownloadEmulatorGui : public gui::AsyncGui {
+   public:
+    DownloadEmulatorGui(std::string window_name, std::string url, std::string desc_dir_path);
+    virtual ~DownloadEmulatorGui();
+    void update() override;
+
+   private:
     std::string window_name;
     DownloadEmulatorStatus status;
+    int content_length;
+    int received_length;
     std::string error_message;
     std::string zip_file_path;
     std::future<network::DownloadFileResult> result_ft_download;
     std::future<std::string> result_ft_unzip;
-    void update() override;
-
-   public:
-    DownloadEmulatorGui(std::string window_name, std::string url, std::string desc_dir_path);
-    virtual ~DownloadEmulatorGui();
-    int content_length;
-    int received_length;
 };
 
 }  // namespace gui
