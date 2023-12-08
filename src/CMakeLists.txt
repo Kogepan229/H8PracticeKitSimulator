@@ -6,6 +6,7 @@ set(CORE_SOURCES
     lang.cpp
     utils.cpp
     download_file.cpp
+    emulator/emulator.cpp
 )
 
 set(GUI_SOURCES
