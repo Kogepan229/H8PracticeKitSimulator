@@ -1,3 +1,14 @@
+#define GLFW_INCLUDE_NONE
+#define GLFW_INCLUDE_VULKAN
+
+// #define IMGUI_UNLIMITED_FRAME_RATE
+#ifdef _DEBUG
+#define IMGUI_VULKAN_DEBUG_REPORT
+#endif
+
+#include <GLFW/glfw3.h>
+#include <vulkan/vulkan.h>
+
 #include <cstdio>
 #include <string>
 
@@ -5,21 +16,15 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
 
-#define GLFW_INCLUDE_NONE
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#include <vulkan/vulkan.h>
-
 // Data
-static VkAllocationCallbacks* g_Allocator     = nullptr;
-static VkInstance g_Instance                  = VK_NULL_HANDLE;
-static VkPhysicalDevice g_PhysicalDevice      = VK_NULL_HANDLE;
-static VkDevice g_Device                      = VK_NULL_HANDLE;
-static uint32_t g_QueueFamily                 = (uint32_t)-1;
-static VkQueue g_Queue                        = VK_NULL_HANDLE;
-static VkDebugReportCallbackEXT g_DebugReport = VK_NULL_HANDLE;
-static VkPipelineCache g_PipelineCache        = VK_NULL_HANDLE;
-static VkDescriptorPool g_DescriptorPool      = VK_NULL_HANDLE;
+static VkAllocationCallbacks* g_Allocator = nullptr;
+static VkInstance g_Instance              = VK_NULL_HANDLE;
+static VkPhysicalDevice g_PhysicalDevice  = VK_NULL_HANDLE;
+static VkDevice g_Device                  = VK_NULL_HANDLE;
+static uint32_t g_QueueFamily             = (uint32_t)-1;
+static VkQueue g_Queue                    = VK_NULL_HANDLE;
+static VkPipelineCache g_PipelineCache    = VK_NULL_HANDLE;
+static VkDescriptorPool g_DescriptorPool  = VK_NULL_HANDLE;
 
 static GLFWwindow* g_Window;
 static ImGui_ImplVulkanH_Window g_MainWindowData;
