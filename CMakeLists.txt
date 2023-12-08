@@ -67,9 +67,13 @@ if(EXISTS ${ELZIP_ZLIB_DIR}/.git)
 file(RENAME ${ELZIP_ZLIB_DIR}/.git ${ELZIP_ZLIB_DIR}/.git_)
 endif()
 
+# Nlohmann Json
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libraries/nlohmann_json)
+
 # Libraries
 find_package(Vulkan REQUIRED)
-set(LIBRARIES "glfw;Vulkan::Vulkan;MbedTLS::mbedtls;MbedTLS::mbedcrypto;MbedTLS::mbedx509;elzip")
+set(LIBRARIES "glfw;Vulkan::Vulkan;MbedTLS::mbedtls;MbedTLS::mbedcrypto;MbedTLS::mbedx509;elzip;nlohmann_json::nlohmann_json")
 if (WIN32)
     set (LIBRARIES "${LIBRARIES};ws2_32")
 endif()
