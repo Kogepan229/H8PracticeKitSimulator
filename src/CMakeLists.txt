@@ -1,12 +1,15 @@
 set(CORE_SOURCES
     graphics.cpp
-    cert.cpp
     font.cpp
     log.cpp
     lang.cpp
     utils.cpp
-    download_file.cpp
     emulator/emulator.cpp
+)
+
+set(NETWORK_SOURCES
+    network/cert.cpp
+    network/download_file.cpp
 )
 
 set(GUI_SOURCES
@@ -14,7 +17,7 @@ set(GUI_SOURCES
     gui/download_emulator_gui.cpp
 )
 
-set(H8PKS_SOURCES ${CORE_SOURCES} ${GUI_SOURCES})
+set(H8PKS_SOURCES ${CORE_SOURCES} ${NETWORK_SOURCES} ${GUI_SOURCES})
 
 set(IMGUI_SOURCES
     ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp

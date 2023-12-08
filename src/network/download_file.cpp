@@ -49,7 +49,7 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
     if (ev == MG_EV_CONNECT) {
         if (mg_url_is_ssl(cb_data->url.c_str())) {
             struct mg_str host      = mg_url_host(cb_data->url.c_str());
-            struct mg_tls_opts opts = {.ca = get_cert(), .name = host};
+            struct mg_tls_opts opts = {.ca = network::get_cert(), .name = host};
             mg_tls_init(c, &opts);
         }
         send_request_get(c, cb_data->url);

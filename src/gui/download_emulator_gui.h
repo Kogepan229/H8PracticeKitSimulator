@@ -4,7 +4,7 @@
 #include <string>
 
 #include "async_gui.h"
-#include "download_file.h"
+#include "network/download_file.h"
 
 namespace gui {
 

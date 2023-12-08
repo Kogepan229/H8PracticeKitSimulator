@@ -2,6 +2,8 @@
 
 #include "mongoose.h"
 
+namespace network {
+
 static const unsigned char v1[] = {
     45,  32,  77,  97,  107, 101, 32,  115, 117, 114, 101, 32,   // - Make sure
     121, 111, 117, 114, 32,  80,  69,  77,  32,  102, 105, 108,  // your PEM fil
@@ -2590,3 +2592,5 @@ struct mg_str get_cert() {
     struct mg_str str = {(const char *)v1, sizeof(v1)};
     return str;
 }
+
+}  // namespace network
