@@ -43,7 +43,6 @@ static size_t send_request_get(struct mg_connection *c, std::string url) {
 static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
     CallbackData *cb_data = static_cast<CallbackData *>(fn_data);
 
-    log::debug(std::format("ev: {}", ev));
     if (ev == MG_EV_CONNECT) {
         if (mg_url_is_ssl(cb_data->url.c_str())) {
             struct mg_str host      = mg_url_host(cb_data->url.c_str());
@@ -71,7 +70,7 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
                     cb_data->redirect_url = conv_mg_str(*location);
                     return;
                 } else if (status != 0 && status != 200) {
-                    std::string err = std::format("Failed download. url: {}, status: {}", cb_data->url, status);
+                    std::string err = std::format("Failed request. url: {}, status: {}", cb_data->url, status);
                     cb_data->error  = err;
                     cb_data->done   = true;
                     return;
@@ -139,9 +138,6 @@ HttpGetResult http_get(const std::string url) {
         log::error(callback_data.error);
         return HttpGetResult("", "", callback_data.error);
     }
-
-    log::debug(callback_data.head);
-    log::debug(callback_data.body);
 
     return HttpGetResult(callback_data.head, callback_data.body, "");
 }
