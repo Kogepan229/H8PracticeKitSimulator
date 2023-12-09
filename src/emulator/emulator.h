@@ -16,4 +16,12 @@ std::string get_version();
 
 bool check_version();
 
+struct LatestEmulatorInfo {
+    std::string version = "";
+    std::string url     = "";
+    std::string error   = "";
+};
+
+LatestEmulatorInfo get_latest_info();
+
 };  // namespace emulator
