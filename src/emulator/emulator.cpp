@@ -27,14 +27,14 @@ std::string get_version() {
 
 bool check_version() {
     if (!exist_emulator()) {
-        log::error("Could not check emulator version. Could not found emulator.");
+        klog::error("Could not check emulator version. Could not found emulator.");
         return false;
     }
 
     FILE *fp;
     std::string cmdline = std::string(emulator::EMULATOR_PATH) + " --version";
     if ((fp = popen(cmdline.c_str(), "r")) == NULL) {
-        log::error("Could not check emulator version. Failed exec.");
+        klog::error("Could not check emulator version. Failed exec.");
         return false;
     }
     char buf[BUFSIZE];
@@ -47,7 +47,7 @@ bool check_version() {
 
     auto strs = utils::split_str(std::string(buf), " ");
     if (strs.size() != 2) {
-        log::error("Could not check emulator version. Invalid version.");
+        klog::error("Could not check emulator version. Invalid version.");
         return false;
     }
 

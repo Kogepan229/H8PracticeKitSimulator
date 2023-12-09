@@ -92,8 +92,8 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
         }
     } else if (ev == MG_EV_MQTT_MSG) {
         struct mg_http_message *hm = (struct mg_http_message *)ev_data;
-        log::debug(conv_mg_str(hm->head));
-        log::debug(conv_mg_str(hm->body));
+        klog::debug(conv_mg_str(hm->head));
+        klog::debug(conv_mg_str(hm->body));
     } else if (ev == MG_EV_ERROR) {
         cb_data->error = std::string((char *)ev_data);
         cb_data->done  = true;
@@ -135,7 +135,7 @@ HttpGetResult http_get(const std::string url) {
 
     // Check error
     if (!callback_data.error.empty()) {
-        log::error(callback_data.error);
+        klog::error(callback_data.error);
         return HttpGetResult("", "", callback_data.error);
     }
 

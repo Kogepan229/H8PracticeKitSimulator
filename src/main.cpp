@@ -39,7 +39,7 @@ int main(int, char**) {
     std::vector<std::unique_ptr<h8kps::EntityBase>> entities = std::vector<std::unique_ptr<h8kps::EntityBase>>();
 
     if (emulator::exist_emulator() && emulator::check_version()) {
-        log::debug("Emulator Version: " + emulator::get_version());
+        klog::debug("Emulator Version: " + emulator::get_version());
     } else {
         entities.push_back(std::make_unique<gui::DownloadEmulatorGui>());
     }

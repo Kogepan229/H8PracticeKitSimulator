@@ -27,7 +27,7 @@ std::unordered_map<LangKeys, std::string> lang_map;
 bool load_lang_file(std::string locale) {
     const std::string lang_file_path = std::string(LANG_DIR_PATH) + "/" + locale + ".lang";
     if (!std::filesystem::is_regular_file(lang_file_path)) {
-        log::error("Not found " + locale + ".lang");
+        klog::error("Not found " + locale + ".lang");
         return false;
     }
 
@@ -39,7 +39,7 @@ bool load_lang_file(std::string locale) {
         std::ifstream file;
         file.open(lang_file_path, std::ios::in);
         if (file.fail()) {
-            log::error("Could not open " + locale + ".lang");
+            klog::error("Could not open " + locale + ".lang");
             return false;
         }
         std::string reading_line_buffer;
@@ -59,7 +59,7 @@ bool load_lang_file(std::string locale) {
         } else {
 #ifndef NDEBUG
             if (locale == "en_us") {
-                log::error("Not found lang key [" + iter->first + "] in en_us.");
+                klog::error("Not found lang key [" + iter->first + "] in en_us.");
             }
 #endif
         }

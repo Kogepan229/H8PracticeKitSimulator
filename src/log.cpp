@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 
-namespace log {
+namespace klog {
 
 void info(std::string message) {
     std::cout << "[info] " + message << std::endl;
@@ -20,4 +20,4 @@ void debug(std::string message) {
 #endif
 }
 
-}  // namespace log
+}  // namespace klog

@@ -88,7 +88,7 @@ void DownloadEmulatorGui::update() {
                         try {
                             std::filesystem::create_directories(std::string("./emulator"));
                         } catch (std::filesystem::filesystem_error e) {
-                            log::error(e.what());
+                            klog::error(e.what());
                             error_message = e.what();
                             status        = DownloadEmulatorStatus::ERROR;
                         }

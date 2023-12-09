@@ -148,7 +148,7 @@ DownloadFileResult download_file(
     // Check exist file
     if (std::filesystem::is_regular_file(callback_data.filepath)) {
         std::string exist_file_error = "The file tried to download is already exist.";
-        log::warn(exist_file_error);
+        klog::warn(exist_file_error);
         return DownloadFileResult(callback_data.filepath, exist_file_error);
     }
 
@@ -156,7 +156,7 @@ DownloadFileResult download_file(
     try {
         std::filesystem::create_directories(desc_dir_path);
     } catch (std::filesystem::filesystem_error e) {
-        log::error(e.what());
+        klog::error(e.what());
         callback_data.error = e.what();
         return DownloadFileResult("", callback_data.error);
     }
@@ -194,11 +194,11 @@ DownloadFileResult download_file(
 
     // Check error
     if (!callback_data.error.empty()) {
-        log::error(callback_data.error);
+        klog::error(callback_data.error);
         return DownloadFileResult("", callback_data.error);
     }
 
-    log::debug("Complete download.");
+    klog::debug("Complete download.");
     return DownloadFileResult(callback_data.filepath, "");
 }
 
