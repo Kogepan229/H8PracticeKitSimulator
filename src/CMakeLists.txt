@@ -4,6 +4,7 @@ set(CORE_SOURCES
     log.cpp
     lang.cpp
     utils.cpp
+    entity.cpp
     emulator/emulator.cpp
 )
 
@@ -14,7 +15,6 @@ set(NETWORK_SOURCES
 )
 
 set(GUI_SOURCES
-    gui/async_gui.cpp
     gui/download_emulator_gui.cpp
 )
 

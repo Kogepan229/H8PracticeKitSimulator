@@ -80,7 +80,6 @@ LatestEmulatorInfo get_latest_info() {
     constexpr std::string_view TARGET = "linux";
 #endif
 
-    log::debug(std::format("size: {}", data["assets"].size()));
     for (size_t i = 0; i < data["assets"].size(); i++) {
         if (!data["assets"][i]["name"].empty()) {
             std::string name = data["assets"][i]["name"].get<std::string>();

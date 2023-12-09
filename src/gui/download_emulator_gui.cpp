@@ -7,6 +7,7 @@
 #include <future>
 
 #include "elzip.hpp"
+#include "emulator/emulator.h"
 #include "imgui.h"
 #include "log.h"
 
@@ -21,29 +22,57 @@ std::string unzip(const elz::path &archive, const elz::path &target, const std::
     return "";
 }
 
-DownloadEmulatorGui::DownloadEmulatorGui(std::string window_name, std::string url, std::string desc_dir_path) {
-    this->window_name     = window_name;
-    this->content_length  = 0;
-    this->received_length = 0;
-    this->status          = DownloadEmulatorStatus::DOWNLOAD;
-    this->result_ft_download =
-        std::async(network::download_file, url, desc_dir_path, &content_length, &received_length);
+DownloadEmulatorGui::DownloadEmulatorGui() {
+    if (emulator::exist_emulator() && emulator::check_version()) {
+        this->is_update = true;
+    } else {
+        this->is_update = false;
+    }
+    this->window_name            = is_update ? "Update Emulator" : "Download Emulator";
+    this->content_length         = 0;
+    this->received_length        = 0;
+    this->status                 = DownloadEmulatorStatus::PREPARE;
+    this->result_ft_check_latest = std::async(emulator::get_latest_info);
 }
 
 DownloadEmulatorGui::~DownloadEmulatorGui() {
 }
 
 void DownloadEmulatorGui::update() {
-    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-    ImGui::SetNextWindowSize(ImVec2(550, 150), ImGuiCond_Appearing);
+    if (status != DownloadEmulatorStatus::PREPARE) {
+        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowSize(ImVec2(550, 150), ImGuiCond_Appearing);
 
-    if (!ImGui::BeginPopupModal(window_name.c_str(), NULL, ImGuiWindowFlags_NoSavedSettings)) {
-        ImGui::OpenPopup(window_name.c_str());
-        return;
+        if (!ImGui::BeginPopupModal(window_name.c_str(), NULL, ImGuiWindowFlags_NoSavedSettings)) {
+            ImGui::OpenPopup(window_name.c_str());
+            return;
+        }
     }
 
     switch (status) {
+        case gui::DownloadEmulatorStatus::PREPARE:
+            if (result_ft_check_latest.valid()) {
+                using namespace std::chrono_literals;
+                auto check_latest_status = result_ft_check_latest.wait_for(0ms);
+                if (check_latest_status == std::future_status::ready) {
+                    auto result = result_ft_check_latest.get();
+                    if (result.error.empty()) {
+                        if (result.version != emulator::get_version()) {
+                            this->result_ft_download = std::async(
+                                network::download_file, result.url, "./tmp/download/", &content_length, &received_length
+                            );
+                            status = DownloadEmulatorStatus::DOWNLOAD;
+                        } else {
+                            deleted = true;
+                        }
+                    } else {
+                        status        = DownloadEmulatorStatus::ERROR;
+                        error_message = result.error;
+                    }
+                }
+            }
+            return;
         case DownloadEmulatorStatus::DOWNLOAD:
             ImGui::TextUnformatted("Downloading ...");
             if (result_ft_download.valid()) {
@@ -96,7 +125,7 @@ void DownloadEmulatorGui::update() {
             break;
 
         case DownloadEmulatorStatus::FINISHED:
-            ImGui::TextUnformatted("Download finished!");
+            ImGui::TextUnformatted(is_update ? "Update finished!" : "Download finished!");
             break;
 
         case DownloadEmulatorStatus::ERROR:
