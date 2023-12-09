@@ -52,6 +52,7 @@ bool check_version() {
     }
 
     emulator_version = strs[1];
+    emulator_version.replace(emulator_version.size() - 1, 1, "");
     return true;
 }
 
