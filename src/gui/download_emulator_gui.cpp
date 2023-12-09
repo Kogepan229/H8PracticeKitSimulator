@@ -28,6 +28,13 @@ DownloadEmulatorGui::DownloadEmulatorGui() {
     } else {
         this->is_update = false;
     }
+
+    if (emulator::exist_emulator()) {
+        klog::info("Emulator Version: " + emulator::get_version());
+    } else {
+        klog::info("Emulator is not found.");
+    }
+
     this->window_name            = is_update ? "Update Emulator" : "Download Emulator";
     this->content_length         = 0;
     this->received_length        = 0;
@@ -59,6 +66,12 @@ void DownloadEmulatorGui::update() {
                     auto result = result_ft_check_latest.get();
                     if (result.error.empty()) {
                         if (result.version != emulator::get_version()) {
+                            if (is_update) {
+                                klog::info(std::format(
+                                    "Update Emulator to {} (Current {})", result.version, emulator::get_version()
+                                ));
+                            }
+
                             this->result_ft_download = std::async(
                                 network::download_file, result.url, "./tmp/download/", &content_length, &received_length
                             );
