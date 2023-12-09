@@ -16,7 +16,7 @@ namespace gui {
 std::string unzip(const elz::path &archive, const elz::path &target, const std::string &password) {
     try {
         elz::extractZip(archive, target, password);
-    } catch (elz::zip_exception e) {
+    } catch (const elz::zip_exception &e) {
         return e.what();
     }
     return "";
@@ -100,7 +100,7 @@ void DownloadEmulatorGui::update() {
                         // Create directory
                         try {
                             std::filesystem::create_directories(std::string("./emulator"));
-                        } catch (std::filesystem::filesystem_error e) {
+                        } catch (const std::filesystem::filesystem_error &e) {
                             klog::error(e.what());
                             error_message = e.what();
                             status        = DownloadEmulatorStatus::ERROR;

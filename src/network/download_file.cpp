@@ -155,7 +155,7 @@ DownloadFileResult download_file(
     // Create directory
     try {
         std::filesystem::create_directories(desc_dir_path);
-    } catch (std::filesystem::filesystem_error e) {
+    } catch (const std::filesystem::filesystem_error &e) {
         klog::error(e.what());
         callback_data.error = e.what();
         return DownloadFileResult("", callback_data.error);
