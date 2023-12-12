@@ -1,2 +1,3 @@
 language=日本語
 test.text=これはテスト文です。
+main_gui.select_elf=Elfを選択

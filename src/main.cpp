@@ -1,16 +1,14 @@
-#include <format>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "emulator/emulator.h"
 #include "entity.hpp"
 #include "font.h"
 #include "graphics.h"
 #include "gui/download_emulator_gui.h"
+#include "gui/main_gui.hpp"
 #include "imgui.h"
 #include "lang.h"
-#include "log.h"
 #include "project_version.h"
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and
@@ -40,9 +38,13 @@ int main(int, char**) {
 
     entities.push_back(std::make_unique<gui::DownloadEmulatorGui>());
 
+    gui::MainGui main_gui;
+
     // Main loop
     while (!graphics::window_should_close()) {
         graphics::new_frame();
+
+        main_gui.update();
 
         // Process entities
         for (auto it = entities.begin(); it != entities.end();) {

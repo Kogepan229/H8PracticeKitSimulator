@@ -20,6 +20,7 @@ const std::unordered_map<std::string, std::string> locale_map = {
 std::unordered_map<std::string, LangKeys> lang_file_key_map = {
     {"language", LangKeys::LANGUAGE},
     {"test.text", LangKeys::TEST_TEXT},
+    {"main_gui.select_elf", LangKeys::MAIN_GUI_SELECT_ELF},
 };
 
 std::unordered_map<LangKeys, std::string> lang_map;

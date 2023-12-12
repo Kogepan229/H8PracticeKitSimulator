@@ -16,6 +16,7 @@ set(NETWORK_SOURCES
 
 set(GUI_SOURCES
     gui/download_emulator_gui.cpp
+    gui/main_gui.cpp
 )
 
 set(H8PKS_SOURCES ${CORE_SOURCES} ${NETWORK_SOURCES} ${GUI_SOURCES})

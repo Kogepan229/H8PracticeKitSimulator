@@ -10,6 +10,7 @@ extern const std::unordered_map<std::string, std::string> locale_map;
 enum class LangKeys {
     LANGUAGE,
     TEST_TEXT,
+    MAIN_GUI_SELECT_ELF,
 };
 
 bool load_translation(std::string locale);
