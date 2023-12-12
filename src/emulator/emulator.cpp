@@ -2,8 +2,10 @@
 
 #include <cstddef>
 #include <cstdio>
+#include <cstdlib>
 #include <filesystem>
 #include <format>
+#include <future>
 #include <nlohmann/json.hpp>
 #include <string>
 
@@ -102,6 +104,26 @@ LatestEmulatorInfo get_latest_info() {
     }
 
     return info;
+}
+
+// Return true when the emulator is already running
+bool EmulatorProcess::start(std::string elf_path) {
+    if (this->result_ft_process.valid()) {
+        this->result_ft_process = std::async([&](std::string elf_path) { return this->exec(elf_path); }, elf_path);
+        return false;
+    } else {
+        return true;
+    }
+}
+
+bool EmulatorProcess::exec(std::string elf_path) {
+    int status = system(std::format("{} --elf={}", EMULATOR_PATH, elf_path).c_str());
+    if (status != 0) {
+        klog::error(std::format("Failed execute emulator. status: {}", status));
+        return true;
+    }
+
+    return false;
 }
 
 };  // namespace emulator

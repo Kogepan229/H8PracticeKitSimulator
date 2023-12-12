@@ -1,5 +1,6 @@
 #pragma once
 
+#include <future>
 #include <string>
 
 namespace emulator {
@@ -23,5 +24,14 @@ struct LatestEmulatorInfo {
 };
 
 LatestEmulatorInfo get_latest_info();
+
+class EmulatorProcess {
+   public:
+    bool start(std::string elf_path);
+
+   private:
+    std::future<bool> result_ft_process;
+    bool exec(std::string elf_path);
+};
 
 };  // namespace emulator

@@ -21,6 +21,10 @@ bool MainGui::update() {
         ImGui::EndMenuBar();
     }
 
+    ImGui::InputText("Elf Path", elf_path_buf, ELF_PATH_BUF_SIZE);
+    if (ImGui::Button("Start")) {
+    }
+
     ImGui::End();
     return false;
 }
