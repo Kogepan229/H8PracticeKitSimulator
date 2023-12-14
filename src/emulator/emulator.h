@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <future>
 #include <memory>
 #include <queue>
@@ -34,11 +35,13 @@ class EmulatorProcess {
    public:
     EmulatorProcess();
     ~EmulatorProcess();
+    void init();
     bool start(std::string elf_path);
     void send(std::string data);
     std::shared_ptr<utils::MutexGuard<std::vector<std::string>>> get_received_data();
 
    private:
+    size_t max_received_data_size;
     std::shared_ptr<utils::MutexGuard<std::vector<std::string>>> received_data;
     utils::MutexGuard<std::queue<std::string>> send_data_queue;
 

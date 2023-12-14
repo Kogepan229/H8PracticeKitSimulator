@@ -110,20 +110,35 @@ LatestEmulatorInfo get_latest_info() {
 }
 
 EmulatorProcess::EmulatorProcess()
-    : received_data(std::make_shared<utils::MutexGuard<std::vector<std::string>>>())
+    : max_received_data_size(2000)
+    , received_data(std::make_shared<utils::MutexGuard<std::vector<std::string>>>())
     , send_data_queue(std::queue<std::string>()) {
 }
 
 EmulatorProcess::~EmulatorProcess() {
 }
 
+void EmulatorProcess::init() {
+    if (this->result_ft_exec.valid() && this->result_ft_communicate.valid()) {
+        using namespace std::chrono_literals;
+        auto check_exec_status        = this->result_ft_exec.wait_for(0ms);
+        auto check_communicate_status = this->result_ft_communicate.wait_for(0ms);
+        if (check_exec_status == std::future_status::ready && check_communicate_status == std::future_status::ready) {
+            this->result_ft_exec        = std::future<bool>();
+            this->result_ft_communicate = std::future<std::string>();
+        }
+    }
+}
+
 // Return true when the emulator is already running
 bool EmulatorProcess::start(std::string elf_path) {
-    if (this->result_ft_exec.valid() && result_ft_communicate.valid()) {
+    if (!this->result_ft_exec.valid() && !result_ft_communicate.valid()) {
+        klog::debug("Start Emulator.");
         this->result_ft_exec        = std::async([&](std::string elf_path) { return this->exec(elf_path); }, elf_path);
         this->result_ft_communicate = std::async([&] { return this->communicate(); });
         return false;
     } else {
+        klog::debug("Emulator is running.");
         return true;
     }
 }
@@ -142,7 +157,8 @@ bool EmulatorProcess::exec(std::string elf_path) {
 }
 
 struct CommunicateCallbackData {
-    bool closed = false;
+    bool closed                         = false;
+    const size_t max_received_data_size = 0;
     std::shared_ptr<utils::MutexGuard<std::vector<std::string>>> received_data;
     utils::MutexGuard<std::queue<std::string>> *send_data_queue;
     std::string error = "";
@@ -155,6 +171,9 @@ void communicate_callback(struct mg_connection *c, int ev, void *ev_data, void *
         c->recv.len = 0;
         {
             auto d = cb_data->received_data->auto_lock();
+            if (d->size() >= cb_data->max_received_data_size) {
+                d->erase(d->begin());
+            }
             d->push_back(str);
         }
     } else if (ev == MG_EV_ERROR) {
@@ -180,7 +199,8 @@ void communicate_callback(struct mg_connection *c, int ev, void *ev_data, void *
 }
 
 std::string EmulatorProcess::communicate() {
-    CommunicateCallbackData callback_data = CommunicateCallbackData(false, received_data, &send_data_queue);
+    CommunicateCallbackData callback_data =
+        CommunicateCallbackData(false, max_received_data_size, received_data, &send_data_queue);
     klog::info("Start communication with Emulator");
 
     struct mg_mgr mgr;

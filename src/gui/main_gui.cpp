@@ -1,9 +1,14 @@
 #include "main_gui.hpp"
 
+#include "emulator/emulator.h"
 #include "imgui.h"
 #include "lang.h"
+#include "log.h"
 
 namespace gui {
+
+MainGui::MainGui() : emulator_process(emulator::EmulatorProcess()) {
+}
 
 bool MainGui::update() {
     auto view_port = ImGui::GetMainViewport();
@@ -23,6 +28,22 @@ bool MainGui::update() {
 
     ImGui::InputText("Elf Path", elf_path_buf, ELF_PATH_BUF_SIZE);
     if (ImGui::Button("Start")) {
+        emulator_process.init();
+        emulator_process.start(std::string(elf_path_buf));
+    }
+
+    auto received = emulator_process.get_received_data();
+    {
+        auto r = received->auto_lock();
+        ImGui::Text("%llu", r->size());
+        ImGui::BeginListBox("Received");
+        // r->size();
+        for (auto it = r->begin(); it != r->end(); --it) {
+            // it->c_str();
+            klog::debug(*it);
+            // ImGui::TextUnformatted(it->c_str());
+        }
+        ImGui::EndListBox();
     }
 
     ImGui::End();
