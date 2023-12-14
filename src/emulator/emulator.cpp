@@ -6,10 +6,13 @@
 #include <filesystem>
 #include <format>
 #include <future>
+#include <memory>
 #include <nlohmann/json.hpp>
 #include <string>
+#include <vector>
 
 #include "log.h"
+#include "mongoose.h"
 #include "network/http_get.hpp"
 #include "utils/string.hpp"
 
@@ -106,10 +109,19 @@ LatestEmulatorInfo get_latest_info() {
     return info;
 }
 
+EmulatorProcess::EmulatorProcess()
+    : received_data(std::make_shared<utils::MutexGuard<std::vector<std::string>>>())
+    , send_data_queue(std::queue<std::string>()) {
+}
+
+EmulatorProcess::~EmulatorProcess() {
+}
+
 // Return true when the emulator is already running
 bool EmulatorProcess::start(std::string elf_path) {
-    if (this->result_ft_process.valid()) {
-        this->result_ft_process = std::async([&](std::string elf_path) { return this->exec(elf_path); }, elf_path);
+    if (this->result_ft_exec.valid() && result_ft_communicate.valid()) {
+        this->result_ft_exec        = std::async([&](std::string elf_path) { return this->exec(elf_path); }, elf_path);
+        this->result_ft_communicate = std::async([&] { return this->communicate(); });
         return false;
     } else {
         return true;
@@ -117,13 +129,78 @@ bool EmulatorProcess::start(std::string elf_path) {
 }
 
 bool EmulatorProcess::exec(std::string elf_path) {
+    klog::info("Execute Emulator.");
     int status = system(std::format("{} --elf={}", EMULATOR_PATH, elf_path).c_str());
     if (status != 0) {
         klog::error(std::format("Failed execute emulator. status: {}", status));
         return true;
+    } else {
+        klog::info("Stopped Emulator.");
     }
 
     return false;
+}
+
+struct CommunicateCallbackData {
+    bool closed = false;
+    std::shared_ptr<utils::MutexGuard<std::vector<std::string>>> received_data;
+    utils::MutexGuard<std::queue<std::string>> *send_data_queue;
+    std::string error = "";
+};
+
+void communicate_callback(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
+    CommunicateCallbackData *cb_data = static_cast<CommunicateCallbackData *>(fn_data);
+    if (ev == MG_EV_READ) {
+        auto str = utils::conv_mg_str(mg_str_n((char *)c->recv.buf, c->recv.len));
+        {
+            auto d = cb_data->received_data->auto_lock();
+            d->push_back(str);
+        }
+    } else if (ev == MG_EV_ERROR) {
+        cb_data->error  = std::string((char *)ev_data);
+        cb_data->closed = true;
+        return;
+    } else if (ev == MG_EV_CLOSE) {
+        cb_data->closed = true;
+        return;
+    }
+
+    {
+        auto q = cb_data->send_data_queue->auto_lock();
+        while (!q->empty()) {
+            auto str = q->front().c_str();
+            auto s   = std::make_unique<char[]>(q->front().size() + 1);
+            memcpy(s.get(), str, q->front().size());
+            s[q->front().size()] = '\n';
+
+            mg_send(c, s.get(), q->front().size() + 1);
+        }
+    }
+}
+
+std::string EmulatorProcess::communicate() {
+    CommunicateCallbackData callback_data = CommunicateCallbackData(false, received_data, &send_data_queue);
+    klog::info("Start communication with Emulator");
+
+    struct mg_mgr mgr;
+    mg_mgr_init(&mgr);
+    mg_connect(&mgr, "tcp://127.0.0.1:12345", communicate_callback, &callback_data);
+    while (!callback_data.closed) {
+        mg_mgr_poll(&mgr, 10);
+    }
+    mg_mgr_free(&mgr);
+
+    klog::info("Disconnected from Emulator.");
+    return callback_data.error;
+}
+
+void EmulatorProcess::send(std::string data) {
+    auto q = send_data_queue.auto_lock();
+    q->push(data);
+}
+
+std::shared_ptr<utils::MutexGuard<std::vector<std::string>>> EmulatorProcess::get_received_data() {
+    return received_data;
 }
 
 };  // namespace emulator

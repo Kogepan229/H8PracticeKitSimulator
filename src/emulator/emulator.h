@@ -1,7 +1,12 @@
 #pragma once
 
 #include <future>
+#include <memory>
+#include <queue>
 #include <string>
+#include <vector>
+
+#include "utils/mutex_guard.hpp"
 
 namespace emulator {
 
@@ -27,11 +32,20 @@ LatestEmulatorInfo get_latest_info();
 
 class EmulatorProcess {
    public:
+    EmulatorProcess();
+    ~EmulatorProcess();
     bool start(std::string elf_path);
+    void send(std::string data);
+    std::shared_ptr<utils::MutexGuard<std::vector<std::string>>> get_received_data();
 
    private:
-    std::future<bool> result_ft_process;
+    std::shared_ptr<utils::MutexGuard<std::vector<std::string>>> received_data;
+    utils::MutexGuard<std::queue<std::string>> send_data_queue;
+
+    std::future<bool> result_ft_exec;
+    std::future<std::string> result_ft_communicate;
     bool exec(std::string elf_path);
+    std::string communicate();
 };
 
 };  // namespace emulator
