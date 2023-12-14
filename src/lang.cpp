@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 #include "log.h"
-#include "utils.h"
+#include "utils/string.hpp"
 
 namespace lang {
 

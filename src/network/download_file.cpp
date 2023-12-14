@@ -10,7 +10,7 @@
 #include "cert.h"
 #include "log.h"
 #include "mongoose.h"
-#include "utils.h"
+#include "utils/string.hpp"
 
 struct CallbackData {
     bool done                = false;

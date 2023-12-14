@@ -11,7 +11,7 @@
 
 #include "log.h"
 #include "network/http_get.hpp"
-#include "utils.h"
+#include "utils/string.hpp"
 
 #define BUFSIZE 256
 

@@ -3,8 +3,8 @@ set(CORE_SOURCES
     font.cpp
     log.cpp
     lang.cpp
-    utils.cpp
     entity.cpp
+    utils/string.cpp
     emulator/emulator.cpp
 )
 
