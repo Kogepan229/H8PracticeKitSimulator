@@ -1,10 +1,12 @@
 #include "string.hpp"
 
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "mongoose.h"
+
 
 namespace utils {
 
