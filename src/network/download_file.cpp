@@ -23,13 +23,6 @@ struct CallbackData {
     std::string error = "";
 };
 
-static std::unique_ptr<char[]> conv_mg_str(size_t len, const char *str) {
-    auto s = std::make_unique<char[]>(len + 1);
-    memcpy(s.get(), str, len);
-    s[len] = '\0';
-    return s;
-}
-
 static size_t send_request_get(struct mg_connection *c, std::string url) {
     struct mg_str host = mg_url_host(url.c_str());
 
@@ -79,7 +72,7 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
                 int status              = mg_http_status(&hm);
                 struct mg_str *location = mg_http_get_header(&hm, "Location");
                 if ((status == 301 || status == 302) && location != NULL) {
-                    cb_data->redirect_url = conv_mg_str(location->len, location->ptr).get();
+                    cb_data->redirect_url = utils::conv_mg_str(*location);
                     return;
                 } else if (status != 0 && status != 200) {
                     std::string err = std::format("Failed download. url: {}, status: {}", cb_data->url, status);

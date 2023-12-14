@@ -1,12 +1,12 @@
 #include "http_get.hpp"
 
 #include <format>
-#include <memory>
 #include <string>
 
 #include "cert.h"
 #include "log.h"
 #include "mongoose.h"
+#include "utils/string.hpp"
 
 struct CallbackData {
     bool done                = false;
@@ -18,13 +18,6 @@ struct CallbackData {
     int received_length      = 0;
     std::string error        = "";
 };
-
-static std::string conv_mg_str(mg_str str) {
-    auto s = std::make_unique<char[]>(str.len + 1);
-    memcpy(s.get(), str.ptr, str.len);
-    s[str.len] = '\0';
-    return std::string(s.get());
-}
 
 static size_t send_request_get(struct mg_connection *c, std::string url) {
     struct mg_str host = mg_url_host(url.c_str());
@@ -55,7 +48,7 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
         // Write received data to file
         size_t *c_data = (size_t *)c->data;
         if (c_data[0]) {
-            cb_data->body += conv_mg_str(mg_str{(char *)c->recv.buf, c->recv.len});
+            cb_data->body += utils::conv_mg_str(mg_str{(char *)c->recv.buf, c->recv.len});
             c->recv.len = 0;  // cleanup the receive buffer
 
         } else {
@@ -67,7 +60,7 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
                 int status              = mg_http_status(&hm);
                 struct mg_str *location = mg_http_get_header(&hm, "Location");
                 if ((status == 301 || status == 302) && location != NULL) {
-                    cb_data->redirect_url = conv_mg_str(*location);
+                    cb_data->redirect_url = utils::conv_mg_str(*location);
                     return;
                 } else if (status != 0 && status != 200) {
                     std::string err = std::format("Failed request. url: {}, status: {}", cb_data->url, status);
@@ -83,8 +76,8 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
                 return;
             }
             if (n > 0) {
-                cb_data->head = conv_mg_str(hm.head);
-                cb_data->body += conv_mg_str(mg_str{(char *)c->recv.buf + n, c->recv.len - n});
+                cb_data->head = utils::conv_mg_str(hm.head);
+                cb_data->body += utils::conv_mg_str(mg_str{(char *)c->recv.buf + n, c->recv.len - n});
 
                 c_data[0]   = hm.body.len + n;
                 c->recv.len = 0;  // Cleanup the receive buffer
@@ -92,8 +85,8 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
         }
     } else if (ev == MG_EV_MQTT_MSG) {
         struct mg_http_message *hm = (struct mg_http_message *)ev_data;
-        klog::debug(conv_mg_str(hm->head));
-        klog::debug(conv_mg_str(hm->body));
+        klog::debug(utils::conv_mg_str(hm->head));
+        klog::debug(utils::conv_mg_str(hm->body));
     } else if (ev == MG_EV_ERROR) {
         cb_data->error = std::string((char *)ev_data);
         cb_data->done  = true;
