@@ -151,7 +151,8 @@ struct CommunicateCallbackData {
 void communicate_callback(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
     CommunicateCallbackData *cb_data = static_cast<CommunicateCallbackData *>(fn_data);
     if (ev == MG_EV_READ) {
-        auto str = utils::conv_mg_str(mg_str_n((char *)c->recv.buf, c->recv.len));
+        auto str    = utils::conv_mg_str(mg_str_n((char *)c->recv.buf, c->recv.len));
+        c->recv.len = 0;
         {
             auto d = cb_data->received_data->auto_lock();
             d->push_back(str);
