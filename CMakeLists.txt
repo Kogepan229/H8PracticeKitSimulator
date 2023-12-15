@@ -75,7 +75,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libraries/nlohmann_json)
 find_package(Vulkan REQUIRED)
 set(LIBRARIES "glfw;Vulkan::Vulkan;MbedTLS::mbedtls;MbedTLS::mbedcrypto;MbedTLS::mbedx509;elzip;nlohmann_json::nlohmann_json")
 if (WIN32)
-    set (LIBRARIES "${LIBRARIES};ws2_32")
+    set (LIBRARIES "${LIBRARIES};ws2_32;iphlpapi")
 endif()
 
 # Use vulkan headers from glfw:

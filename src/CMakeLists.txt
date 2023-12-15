@@ -9,6 +9,7 @@ set(CORE_SOURCES
 )
 
 set(NETWORK_SOURCES
+    network/dns.cpp
     network/cert.cpp
     network/http_get.cpp
     network/download_file.cpp
