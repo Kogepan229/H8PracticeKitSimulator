@@ -49,6 +49,10 @@ std::string get_dns() {
 #else
     res_state res = (res_state)malloc(sizeof(struct __res_state));
     res_ninit(res);
+    if (res->nscount <= 0) {
+        klog::error("Failed to get DNS address.");
+        return "";
+    }
     return std::format("{}:{}", inet_ntoa(res->nsaddr_list[0].sin_addr), htons(res->nsaddr_list[0].sin_port));
 #endif
 }
