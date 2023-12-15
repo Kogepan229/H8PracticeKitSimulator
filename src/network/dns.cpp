@@ -1,12 +1,7 @@
 #include "dns.hpp"
 
-#include <arpa/inet.h>
-#include <bits/types/res_state.h>
-#include <netinet/in.h>
-
-#include <format>
-
 #if defined(_WIN32) || defined(_WIN64)
+//// Windows
 // Must include before windows.h
 #include <winsock2.h>
 // Next
@@ -14,12 +9,20 @@
 #include <stdio.h>
 #include <winerror.h>
 #else
+//// Linux
+#include <arpa/inet.h>
+#include <bits/types/res_state.h>
+#include <netinet/in.h>
+
 #include <cstdlib>
+#include <format>
 
 #include "resolv.h"
 #endif
 
 #include <string>
+
+#include "log.h"
 
 namespace network {
 
