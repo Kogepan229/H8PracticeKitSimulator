@@ -4,12 +4,12 @@
 #include <format>
 #include <fstream>
 #include <iostream>
-#include <memory>
 #include <string>
 
 #include "cert.h"
 #include "log.h"
 #include "mongoose.h"
+#include "network/dns.hpp"
 #include "utils/string.hpp"
 
 struct CallbackData {
@@ -158,6 +158,7 @@ DownloadFileResult download_file(
     {
         struct mg_mgr mgr;
         mg_mgr_init(&mgr);
+        mgr.dns4.url = std::format("udp://{}", network::get_dns()).c_str();
 
         mg_http_connect(&mgr, callback_data.url.c_str(), callback_get, &callback_data);
         while (!callback_data.done) {
