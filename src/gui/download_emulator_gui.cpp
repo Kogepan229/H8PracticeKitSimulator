@@ -11,6 +11,10 @@
 #include "imgui.h"
 #include "log.h"
 
+#if !defined(_WIN32) && !defined(_WIN64)
+#include <sys/stat.h>
+#endif
+
 namespace gui {
 
 std::string unzip(const elz::path &archive, const elz::path &target, const std::string &password) {
@@ -128,6 +132,13 @@ void DownloadEmulatorGui::update() {
                 if (unzip_status == std::future_status::ready) {
                     std::string result = result_ft_unzip.get();
                     if (result.empty()) {
+#if !defined(_WIN32) && !defined(_WIN64)
+                        if (chmod(std::string(emulator::EMULATOR_PATH).c_str(), 0755)) {
+                            status        = DownloadEmulatorStatus::ERROR;
+                            error_message = "Failed to change Emulator permission.";
+                            break;
+                        }
+#endif
                         status = DownloadEmulatorStatus::FINISHED;
                     } else {
                         status        = DownloadEmulatorStatus::ERROR;
