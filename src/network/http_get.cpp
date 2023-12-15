@@ -108,7 +108,8 @@ HttpGetResult http_get(const std::string url) {
     {
         struct mg_mgr mgr;
         mg_mgr_init(&mgr);
-        mgr.dns4.url = std::format("udp://{}", network::get_dns()).c_str();
+        auto dns     = std::format("udp://{}", network::get_dns());
+        mgr.dns4.url = dns.c_str();
 
         mg_http_connect(&mgr, callback_data.url.c_str(), callback_get, &callback_data);
         while (!callback_data.done) {
