@@ -76,7 +76,10 @@ void DownloadEmulatorGui::update() {
                                 network::download_file, result.url, "./tmp/download/", &content_length, &received_length
                             );
                             status = DownloadEmulatorStatus::DOWNLOAD;
+                            klog::debug("Start download Emulator.");
                         } else {
+                            klog::info(std::format("The Emulator is currently the latest version ({}).", result.version)
+                            );
                             deleted = true;
                         }
                     } else {

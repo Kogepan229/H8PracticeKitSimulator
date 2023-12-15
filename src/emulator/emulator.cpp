@@ -62,6 +62,7 @@ bool check_version() {
 }
 
 LatestEmulatorInfo get_latest_info() {
+    klog::debug("Get latest emulator info.");
     auto info = LatestEmulatorInfo();
 
     auto result = network::http_get("https://api.github.com/repos/Kogepan229/Koge29_H8-3069F_Emulator/releases/latest");
