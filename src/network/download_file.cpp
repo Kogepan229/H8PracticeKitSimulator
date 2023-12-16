@@ -123,7 +123,8 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
 namespace network {
 
 DownloadFileResult download_file(
-    const std::string url, const std::string desc_dir_path, int *const content_length, int *const received_length
+    const std::string url, const std::string desc_dir_path, int *const content_length, int *const received_length,
+    bool overwrite
 ) {
     CallbackData callback_data = CallbackData();
     callback_data.url          = url;
@@ -140,9 +141,13 @@ DownloadFileResult download_file(
 
     // Check exist file
     if (std::filesystem::is_regular_file(callback_data.filepath)) {
-        std::string exist_file_error = "The file tried to download is already exist.";
-        klog::warn(exist_file_error);
-        return DownloadFileResult(callback_data.filepath, exist_file_error);
+        if (overwrite) {
+            std::filesystem::remove(callback_data.filepath);
+        } else {
+            std::string exist_file_error = "The file tried to download is already exist.";
+            klog::warn(exist_file_error);
+            return DownloadFileResult(callback_data.filepath, exist_file_error);
+        }
     }
 
     // Create directory

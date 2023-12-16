@@ -77,7 +77,8 @@ void DownloadEmulatorGui::update() {
                             }
 
                             this->result_ft_download = std::async(
-                                network::download_file, result.url, "./tmp/download/", &content_length, &received_length
+                                network::download_file, result.url, "./tmp/download/", &content_length,
+                                &received_length, true
                             );
                             status = DownloadEmulatorStatus::DOWNLOAD;
                             klog::debug("Start download Emulator.");

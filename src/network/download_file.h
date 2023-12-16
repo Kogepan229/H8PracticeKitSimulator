@@ -11,7 +11,8 @@ struct DownloadFileResult {
 };
 
 DownloadFileResult download_file(
-    const std::string url, const std::string desc_dir_path, int *const content_length, int *const received_length
+    const std::string url, const std::string desc_dir_path, int *const content_length, int *const received_length,
+    bool overwrite
 );
 
 }  // namespace network
