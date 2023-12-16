@@ -121,10 +121,7 @@ EmulatorProcess::~EmulatorProcess() {
 
 void EmulatorProcess::init() {
     if (this->result_ft_exec.valid() && this->result_ft_communicate.valid()) {
-        using namespace std::chrono_literals;
-        auto check_exec_status        = this->result_ft_exec.wait_for(0ms);
-        auto check_communicate_status = this->result_ft_communicate.wait_for(0ms);
-        if (check_exec_status == std::future_status::ready && check_communicate_status == std::future_status::ready) {
+        if (!this->is_running()) {
             this->result_ft_exec        = std::future<bool>();
             this->result_ft_communicate = std::future<std::string>();
         }
@@ -141,6 +138,21 @@ bool EmulatorProcess::start(std::string elf_path) {
     } else {
         klog::debug("Emulator is running.");
         return true;
+    }
+}
+
+bool EmulatorProcess::is_running() {
+    if (this->result_ft_exec.valid() && this->result_ft_communicate.valid()) {
+        using namespace std::chrono_literals;
+        auto check_exec_status        = this->result_ft_exec.wait_for(0ms);
+        auto check_communicate_status = this->result_ft_communicate.wait_for(0ms);
+        if (check_exec_status == std::future_status::ready && check_communicate_status == std::future_status::ready) {
+            return false;
+        } else {
+            return true;
+        }
+    } else {
+        return false;
     }
 }
 

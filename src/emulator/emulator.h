@@ -37,6 +37,7 @@ class EmulatorProcess {
     ~EmulatorProcess();
     void init();
     bool start(std::string elf_path);
+    bool is_running();
     void send(std::string data);
     std::shared_ptr<utils::MutexGuard<std::vector<std::string>>> get_received_data();
 
