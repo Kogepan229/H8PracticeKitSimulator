@@ -35,6 +35,15 @@ bool MainGui::update() {
         emulator_process.start(std::string(elf_path_buf));
     }
 
+    ImGui::Separator();
+
+    ImGui::InputText("Input Send", send_string_buf, SEND_STRING_BUF_SIZE);
+    ImGui::BeginDisabled(!emulator_process.is_running());
+    if (ImGui::Button("Send")) {
+        emulator_process.send(std::string(send_string_buf));
+    }
+    ImGui::EndDisabled();
+
     auto received = emulator_process.get_received_data();
     {
         auto r = received->auto_lock();
