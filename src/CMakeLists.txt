@@ -5,6 +5,7 @@ set(CORE_SOURCES
     lang.cpp
     entity.cpp
     utils/string.cpp
+    utils/time.cpp
     emulator/emulator.cpp
 )
 

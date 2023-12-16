@@ -1,9 +1,12 @@
 #include "main_gui.hpp"
 
+#include <format>
+
 #include "emulator/emulator.h"
 #include "imgui.h"
 #include "lang.h"
 #include "log.h"
+#include "utils/time.hpp"
 
 namespace gui {
 
@@ -38,7 +41,7 @@ bool MainGui::update() {
         ImGui::Text("%llu", r->size());
         ImGui::BeginListBox("Received");
         for (auto it = r->rbegin(); it != r->rend(); ++it) {
-            ImGui::TextUnformatted(it->c_str());
+            ImGui::TextUnformatted(std::format("[{}] {}", utils::get_current(), *it).c_str());
         }
         ImGui::EndListBox();
     }
