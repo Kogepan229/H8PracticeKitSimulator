@@ -203,6 +203,7 @@ void communicate_callback(struct mg_connection *c, int ev, void *ev_data, void *
             s[q->front().size()] = '\n';
 
             mg_send(c, s.get(), q->front().size() + 1);
+            q->pop();
         }
     }
 }
