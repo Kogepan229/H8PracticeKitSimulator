@@ -37,11 +37,8 @@ bool MainGui::update() {
         auto r = received->auto_lock();
         ImGui::Text("%llu", r->size());
         ImGui::BeginListBox("Received");
-        // r->size();
-        for (auto it = r->begin(); it != r->end(); --it) {
-            // it->c_str();
-            klog::debug(*it);
-            // ImGui::TextUnformatted(it->c_str());
+        for (auto it = r->rbegin(); it != r->rend(); ++it) {
+            ImGui::TextUnformatted(it->c_str());
         }
         ImGui::EndListBox();
     }
