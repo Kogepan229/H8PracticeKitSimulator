@@ -168,14 +168,22 @@ struct CommunicateCallbackData {
 void communicate_callback(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
     CommunicateCallbackData *cb_data = static_cast<CommunicateCallbackData *>(fn_data);
     if (ev == MG_EV_READ) {
-        auto str    = utils::conv_mg_str(mg_str_n((char *)c->recv.buf, c->recv.len));
-        c->recv.len = 0;
-        {
-            auto d = cb_data->received_data->auto_lock();
-            if (d->size() >= cb_data->max_received_data_size) {
-                d->erase(d->begin());
+        auto received_str = utils::conv_mg_str(mg_str_n((char *)c->recv.buf, c->recv.len));
+
+        // Separate with \n
+        auto strs = utils::split_str(received_str, "\n");
+        for (auto it = strs.begin(); it != strs.end(); ++it) {
+            if (it->empty()) {
+                continue;
             }
-            d->push_back(str);
+
+            {
+                auto d = cb_data->received_data->auto_lock();
+                if (d->size() >= cb_data->max_received_data_size) {
+                    d->erase(d->begin());
+                }
+                d->push_back(*it);
+            }
         }
     } else if (ev == MG_EV_ERROR) {
         cb_data->error  = std::string((char *)ev_data);
