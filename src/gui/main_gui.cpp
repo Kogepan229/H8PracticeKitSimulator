@@ -15,7 +15,7 @@ MainGui::MainGui() : emulator_process(emulator::EmulatorProcess()) {
 
 bool MainGui::update() {
     auto view_port = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos(view_port->GetCenter(), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowPos(view_port->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
     ImGui::SetNextWindowSize(view_port->Size, ImGuiCond_Always);
     ImGui::SetNextWindowViewport(view_port->ID);
     ImGui::Begin(
