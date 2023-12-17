@@ -243,8 +243,11 @@ void EmulatorProcess::send(std::string data) {
     q->push(data);
 }
 
-std::shared_ptr<utils::MutexGuard<std::vector<std::string>>> EmulatorProcess::get_received_data() {
-    return received_data;
+std::vector<std::string> EmulatorProcess::get_received_data() {
+    auto r      = received_data->auto_lock();
+    auto result = std::vector<std::string>(*r);
+    r->clear();
+    return result;
 }
 
 };  // namespace emulator

@@ -39,7 +39,7 @@ class EmulatorProcess {
     bool start(std::string elf_path);
     bool is_running();
     void send(std::string data);
-    std::shared_ptr<utils::MutexGuard<std::vector<std::string>>> get_received_data();
+    std::vector<std::string> get_received_data();
 
    private:
     size_t max_received_data_size;

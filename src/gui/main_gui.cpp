@@ -1,6 +1,7 @@
 #include "main_gui.hpp"
 
 #include <format>
+#include <vector>
 
 #include "emulator/emulator.h"
 #include "imgui.h"
@@ -10,7 +11,12 @@
 
 namespace gui {
 
-MainGui::MainGui() : emulator_process(emulator::EmulatorProcess()) {
+MainGui::MainGui()
+    : emulator_process(emulator::EmulatorProcess())
+    , max_received_data_size(200)
+    , received_messages(std::vector<std::string>())
+    , one_sec_timer(std::chrono::system_clock::now())
+    , one_sec_duration(0) {
 }
 
 bool MainGui::update() {
@@ -44,16 +50,32 @@ bool MainGui::update() {
     }
     ImGui::EndDisabled();
 
-    auto received = emulator_process.get_received_data();
     {
-        auto r = received->auto_lock();
-        ImGui::Text("%llu", r->size());
-        ImGui::BeginListBox("Received");
-        for (auto it = r->rbegin(); it != r->rend(); ++it) {
-            ImGui::TextUnformatted(std::format("[{}] {}", utils::get_current(), *it).c_str());
+        auto received = emulator_process.get_received_data();
+
+        for (auto it = received.begin(); it != received.end(); ++it) {
+            if (received_messages.size() >= max_received_data_size) {
+                received_messages.erase(received_messages.begin());
+            }
+            received_messages.push_back(*it);
+
+            if (*it == "1sec") {
+                auto now_t       = std::chrono::system_clock::now();
+                auto dur         = now_t - one_sec_timer;
+                one_sec_duration = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+                one_sec_timer    = now_t;
+            }
         }
-        ImGui::EndListBox();
     }
+
+    ImGui::Text("1sec duration: %llu", one_sec_duration);
+    ImGui::Text("%llu", received_messages.size());
+    ImGui::BeginListBox("Received");
+    for (auto it = received_messages.rbegin(); it != received_messages.rend(); ++it) {
+        ImGui::TextUnformatted(std::format("[{}] {}", utils::get_current(), *it).c_str());
+    }
+
+    ImGui::EndListBox();
 
     ImGui::End();
     return false;
