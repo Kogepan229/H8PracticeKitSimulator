@@ -181,6 +181,7 @@ void communicate_callback(struct mg_connection *c, int ev, void *ev_data, void *
     CommunicateCallbackData *cb_data = static_cast<CommunicateCallbackData *>(fn_data);
     if (ev == MG_EV_READ) {
         auto received_str = utils::conv_mg_str(mg_str_n((char *)c->recv.buf, c->recv.len));
+        c->recv.len       = 0;
 
         // Separate with \n
         auto strs = utils::split_str(received_str, "\n");
