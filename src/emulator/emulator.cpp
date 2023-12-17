@@ -111,7 +111,7 @@ LatestEmulatorInfo get_latest_info() {
 }
 
 EmulatorProcess::EmulatorProcess()
-    : max_received_data_size(2000)
+    : max_received_data_size(200)
     , received_data(std::make_shared<utils::MutexGuard<std::vector<std::string>>>())
     , send_data_queue(std::queue<std::string>()) {
 }
