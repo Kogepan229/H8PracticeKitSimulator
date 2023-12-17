@@ -57,7 +57,7 @@ bool MainGui::update() {
             if (received_messages.size() >= max_received_data_size) {
                 received_messages.erase(received_messages.begin());
             }
-            received_messages.push_back(*it);
+            received_messages.push_back(std::format("[{}] {}", utils::get_current(), *it));
 
             if (*it == "1sec") {
                 auto now_t       = std::chrono::system_clock::now();
@@ -72,7 +72,7 @@ bool MainGui::update() {
     ImGui::Text("%llu", received_messages.size());
     ImGui::BeginListBox("Received");
     for (auto it = received_messages.rbegin(); it != received_messages.rend(); ++it) {
-        ImGui::TextUnformatted(std::format("[{}] {}", utils::get_current(), *it).c_str());
+        ImGui::TextUnformatted(it->c_str());
     }
 
     ImGui::EndListBox();
