@@ -118,6 +118,29 @@ jobs:
           path: ./build/src/${{ env.PROJECT_NAME }}
           if-no-files-found: error
 
+      - name: Run cmake (Static libstdc++)
+        run: >
+          cmake .
+          -B build
+          -G "Ninja"
+          -DCMAKE_C_COMPILER="clang-${{ env.LLVM_VERSION }}"
+          -DCMAKE_CXX_COMPILER="clang++-${{ env.LLVM_VERSION }}"
+          -DCMAKE_MAKE_PROGRAM="ninja"
+          -DCMAKE_BUILD_TYPE=Release
+          -DSTATIC_LIBSTDCPP=True
+
+      - name: Build (Static libstdc++)
+        run: |
+          cd build
+          ninja
+
+      - name: Upload artifact (Static libstdc++)
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.PROJECT_NAME }}-x86_64-linux-static_libstdcpp
+          path: ./build/src/${{ env.PROJECT_NAME }}
+          if-no-files-found: error
+
   release:
     runs-on: ubuntu-22.04
     needs: [build-windows, build-linux]
@@ -148,6 +171,7 @@ jobs:
           cd ./artifacts
           zip -r ${{ env.PROJECT_NAME }}-x86_64-windows-${{steps.check_version.outputs.current-version}}.zip ./${{ env.PROJECT_NAME }}-x86_64-windows
           tar -zcvf ${{ env.PROJECT_NAME }}-x86_64-linux-${{steps.check_version.outputs.current-version}}.tar.gz ./${{ env.PROJECT_NAME }}-x86_64-linux
+          tar -zcvf ${{ env.PROJECT_NAME }}-x86_64-linux-static_libstdcpp-${{steps.check_version.outputs.current-version}}.tar.gz ./${{ env.PROJECT_NAME }}-x86_64-linux-static_libstdcpp
 
       - name: Create tag
         id: create_tag
@@ -167,5 +191,6 @@ jobs:
           body: ${{ steps.create_tag.outputs.changelog }}
           artifacts:
             "./artifacts/${{ env.PROJECT_NAME }}-x86_64-windows-${{steps.check_version.outputs.current-version}}.zip,
-            ./artifacts/${{ env.PROJECT_NAME }}-x86_64-linux-${{steps.check_version.outputs.current-version}}.tar.gz"
+            ./artifacts/${{ env.PROJECT_NAME }}-x86_64-linux-${{steps.check_version.outputs.current-version}}.tar.gz,
+            ./artifacts/${{ env.PROJECT_NAME }}-x86_64-linux-static_libstdcpp-${{steps.check_version.outputs.current-version}}.tar.gz"
           makeLatest: "latest"
