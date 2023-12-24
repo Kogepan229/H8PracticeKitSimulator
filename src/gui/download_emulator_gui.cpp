@@ -107,7 +107,7 @@ void DownloadEmulatorGui::update() {
 
                         // Create directory
                         try {
-                            std::filesystem::create_directories(std::string("./emulator"));
+                            std::filesystem::create_directories("./emulator");
                         } catch (const std::filesystem::filesystem_error &e) {
                             klog::error(e.what());
                             error_message = e.what();
@@ -115,7 +115,7 @@ void DownloadEmulatorGui::update() {
                         }
 
                         // Start unzip
-                        result_ft_unzip = std::async(unzip, result.file_path, std::string("./emulator"), "");
+                        result_ft_unzip = std::async(unzip, result.file_path, "./emulator", "");
                     } else {
                         status        = DownloadEmulatorStatus::ERROR;
                         error_message = result.error;
