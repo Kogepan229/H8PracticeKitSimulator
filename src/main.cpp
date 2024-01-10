@@ -9,6 +9,7 @@
 #include "gui/main_gui.hpp"
 #include "imgui.h"
 #include "lang.h"
+#include "nfd.hpp"
 #include "project_version.h"
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and
@@ -23,6 +24,8 @@
 int main(int, char**) {
     graphics::init::init_window("H8 Practice Kit Simulator " + std::string(PROJECT_VERSION));
     graphics::init::init_imgui();
+
+    NFD::Init();
 
     // Load translation
     lang::load_translation("ja_jp");
@@ -64,6 +67,8 @@ int main(int, char**) {
 
         graphics::render(clear_color);
     }
+
+    NFD::Quit();
 
     graphics::cleanup();
 

@@ -16,7 +16,8 @@ MainGui::MainGui()
     , max_received_data_size(200)
     , received_messages(std::vector<std::string>())
     , one_sec_timer(std::chrono::system_clock::now())
-    , one_sec_duration(0) {
+    , one_sec_duration(0)
+    , elf_browser(filebrowser::FileBrowser()) {
 }
 
 bool MainGui::update() {
@@ -31,8 +32,18 @@ bool MainGui::update() {
     );
 
     if (ImGui::BeginMenuBar()) {
-        ImGui::MenuItem(lang::translate(lang::LangKeys::MAIN_GUI_SELECT_ELF).c_str());
+        if (ImGui::MenuItem(lang::translate(lang::LangKeys::MAIN_GUI_SELECT_ELF).c_str())) {
+            elf_browser.open(ELF_FILE_FILTER, 1);
+        }
         ImGui::EndMenuBar();
+    }
+
+    if (elf_browser.check_finished()) {
+        const std::string elf_path = elf_browser.get_file_path();
+        if (elf_path.size() < ELF_PATH_BUF_SIZE) {
+            elf_path.copy(elf_path_buf, elf_path.size());
+            elf_path_buf[elf_path.size()] = '\0';
+        }
     }
 
     ImGui::InputText("Elf Path", elf_path_buf, ELF_PATH_BUF_SIZE);

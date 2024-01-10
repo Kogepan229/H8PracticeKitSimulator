@@ -4,6 +4,7 @@ set(CORE_SOURCES
     log.cpp
     lang.cpp
     entity.cpp
+    file_browser.cpp
     utils/string.cpp
     utils/time.cpp
     emulator/emulator.cpp

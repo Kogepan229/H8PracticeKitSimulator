@@ -3,8 +3,11 @@
 #include <vector>
 
 #include "emulator/emulator.h"
+#include "file_browser.hpp"
 
 namespace gui {
+
+constexpr nfdfilteritem_t ELF_FILE_FILTER[1] = {{"ELF", "elf"}};
 
 class MainGui {
    public:
@@ -21,6 +24,7 @@ class MainGui {
     std::vector<std::string> received_messages;
     std::chrono::time_point<std::chrono::system_clock> one_sec_timer;
     long long one_sec_duration;
+    filebrowser::FileBrowser elf_browser;
 };
 
 }  // namespace gui
