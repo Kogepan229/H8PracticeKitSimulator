@@ -94,7 +94,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libvulkan-dev ninja-build xorg-dev
+          sudo apt-get install -y libvulkan-dev ninja-build xorg-dev libgtk-3-dev
 
       - name: Run cmake
         run: >
