@@ -79,8 +79,8 @@ bool MainGui::update() {
         }
     }
 
-    ImGui::Text("1sec duration: %llu", one_sec_duration);
-    ImGui::Text("%llu", received_messages.size());
+    ImGui::Text("1sec duration: %llu[ms]", one_sec_duration);
+    ImGui::Text("buffer num: %llu", received_messages.size());
     ImGui::BeginListBox("Received", ImVec2(0, 400));
     for (auto it = received_messages.rbegin(); it != received_messages.rend(); ++it) {
         ImGui::TextUnformatted(it->c_str());
