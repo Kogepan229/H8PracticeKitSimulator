@@ -18,7 +18,7 @@ enum class DownloadEmulatorStatus {
     ERROR,
 };
 
-class DownloadEmulatorGui : public h8kps::EntityBase {
+class DownloadEmulatorGui : public h8pks::EntityBase {
    public:
     DownloadEmulatorGui();
     virtual ~DownloadEmulatorGui();

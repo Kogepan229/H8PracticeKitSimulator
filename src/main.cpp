@@ -37,7 +37,7 @@ int main(int, char**) {
     bool show_demo_window = true;
     ImVec4 clear_color    = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    std::vector<std::unique_ptr<h8kps::EntityBase>> entities = std::vector<std::unique_ptr<h8kps::EntityBase>>();
+    std::vector<std::unique_ptr<h8pks::EntityBase>> entities = std::vector<std::unique_ptr<h8pks::EntityBase>>();
 
     entities.push_back(std::make_unique<gui::DownloadEmulatorGui>());
 

@@ -1,6 +1,6 @@
 #include "entity.hpp"
 
-namespace h8kps {
+namespace h8pks {
 
 EntityBase::EntityBase() {
     this->deleted = false;
@@ -9,4 +9,4 @@ EntityBase::EntityBase() {
 EntityBase::~EntityBase() {
 }
 
-}  // namespace h8kps
+}  // namespace h8pks

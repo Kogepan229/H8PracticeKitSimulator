@@ -1,6 +1,6 @@
 #pragma once
 
-namespace h8kps {
+namespace h8pks {
 
 class EntityBase {
    public:
@@ -10,4 +10,4 @@ class EntityBase {
     virtual void update() = 0;
 };
 
-}  // namespace h8kps
+}  // namespace h8pks

@@ -40,4 +40,4 @@ add_executable(h8pks main.cpp ${H8PKS_SOURCES} ${IMGUI_SOURCES} ${MONGOOSE_DIR}/
 target_link_libraries(h8pks ${LIBRARIES})
 target_compile_definitions(h8pks PUBLIC -DImTextureID=ImU64)
 
-add_custom_target(h8kps ALL COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/../assets $<TARGET_FILE_DIR:h8pks>/assets)
+add_custom_target(h8pks ALL COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/../assets $<TARGET_FILE_DIR:h8pks>/assets)
