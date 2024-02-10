@@ -61,15 +61,10 @@ include_directories(${MONGOOSE_DIR})
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMG_TLS=MG_TLS_MBED")
 
 # 11zip
-# Rename .git to make git ignore zlib
-set(ELZIP_ZLIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libraries/elzip/extlibs/minizip/third-party/zlib)
-if(EXISTS ${ELZIP_ZLIB_DIR}/.git_)
-  file(RENAME ${ELZIP_ZLIB_DIR}/.git_ ${ELZIP_ZLIB_DIR}/.git)
-endif()
-add_subdirectory(libraries/elzip)
-if(EXISTS ${ELZIP_ZLIB_DIR}/.git)
-file(RENAME ${ELZIP_ZLIB_DIR}/.git ${ELZIP_ZLIB_DIR}/.git_)
-endif()
+set(ELZIP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libraries/elzip)
+set(ZLIB_TAG 3c13497a61c192dd255c280e73b806ed27ba8a0a)
+set(RENAME_ZCONF OFF)
+add_subdirectory(${ELZIP_DIR})
 
 # Nlohmann Json
 set(JSON_BuildTests OFF CACHE INTERNAL "")
