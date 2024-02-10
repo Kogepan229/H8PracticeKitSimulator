@@ -13,14 +13,14 @@
 #include "utils/string.hpp"
 
 struct CallbackData {
-    bool done                = false;
-    std::string url          = "";
-    std::string redirect_url = "";
-    int content_length       = 0;
-    int received_length      = 0;
-    std::string filepath     = "";
+    bool done{false};
+    std::string url;
+    std::string redirect_url;
+    int content_length{0};
+    int received_length{0};
+    std::string filepath;
     std::ofstream file;
-    std::string error = "";
+    std::string error;
 };
 
 static size_t send_request_get(struct mg_connection *c, std::string url) {
@@ -126,8 +126,7 @@ DownloadFileResult download_file(
     const std::string url, const std::string desc_dir_path, int *const content_length, int *const received_length,
     bool overwrite
 ) {
-    CallbackData callback_data = CallbackData();
-    callback_data.url          = url;
+    CallbackData callback_data = CallbackData{.url = url};
 
     {
         auto strs            = utils::split_str(url, "/");
@@ -142,11 +141,12 @@ DownloadFileResult download_file(
     // Check exist file
     if (std::filesystem::is_regular_file(callback_data.filepath)) {
         if (overwrite) {
+            // TODO: catch exception caused by permission denied
             std::filesystem::remove(callback_data.filepath);
         } else {
             std::string exist_file_error = "The file tried to download is already exist.";
             klog::warn(exist_file_error);
-            return DownloadFileResult(callback_data.filepath, exist_file_error);
+            return DownloadFileResult{.file_path = callback_data.filepath, .error = exist_file_error};
         }
     }
 
@@ -156,7 +156,7 @@ DownloadFileResult download_file(
     } catch (const std::filesystem::filesystem_error &e) {
         klog::error(e.what());
         callback_data.error = e.what();
-        return DownloadFileResult("", callback_data.error);
+        return DownloadFileResult{.error = callback_data.error};
     }
 
     // Download file
@@ -195,11 +195,11 @@ DownloadFileResult download_file(
     // Check error
     if (!callback_data.error.empty()) {
         klog::error(callback_data.error);
-        return DownloadFileResult("", callback_data.error);
+        return DownloadFileResult{.error = callback_data.error};
     }
 
     klog::debug("Complete download.");
-    return DownloadFileResult(callback_data.filepath, "");
+    return DownloadFileResult{.file_path = callback_data.filepath};
 }
 
 }  // namespace network
