@@ -31,6 +31,10 @@ static ImGui_ImplVulkanH_Window g_MainWindowData;
 static int g_MinImageCount     = 2;
 static bool g_SwapChainRebuild = false;
 
+#ifdef IMGUI_VULKAN_DEBUG_REPORT
+static VkDebugReportCallbackEXT g_DebugReport = VK_NULL_HANDLE;
+#endif
+
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
