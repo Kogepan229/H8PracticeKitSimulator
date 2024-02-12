@@ -36,9 +36,14 @@ bool check_version() {
         return false;
     }
 
-    FILE *fp;
     std::string cmdline = std::string(emulator::EMULATOR_PATH) + " --version";
-    if ((fp = _popen(cmdline.c_str(), "r")) == NULL) {
+#ifdef _MSC_VER
+    FILE *fp = _popen(cmdline.c_str(), "r");
+#else
+    FILE *fp = popen(cmdline.c_str(), "r");
+#endif
+
+    if (fp == NULL) {
         klog::error("Could not check emulator version. Failed exec.");
         return false;
     }
@@ -48,7 +53,11 @@ bool check_version() {
         fgets(buf, sizeof(buf), fp);
     }
 
-    (void)_pclose(fp);
+#ifdef _MSC_VER
+    _pclose(fp);
+#else
+    pclose(fp);
+#endif
 
     auto strs = utils::split_str(std::string(buf), " ");
     if (strs.size() != 2) {
