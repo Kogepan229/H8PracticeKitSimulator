@@ -1,19 +1,16 @@
 #include "string.hpp"
 
-#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "mongoose.h"
 
-
 namespace utils {
 
 std::pair<std::string, std::string> split_str_on_first(const std::string &src, char delim) {
-    std::string s1 = "";
-    std::string s2 = "";
-    bool found     = false;
+    std::string s1, s2;
+    bool found = false;
     for (char ch : src) {
         if (ch == delim) {
             found = true;
@@ -50,10 +47,7 @@ std::vector<std::string> split_str(std::string str, std::string separator) {
 }
 
 std::string conv_mg_str(mg_str str) {
-    auto s = std::make_unique<char[]>(str.len + 1);
-    memcpy(s.get(), str.ptr, str.len);
-    s[str.len] = '\0';
-    return std::string(s.get());
+    return std::string(str.ptr, str.len);
 }
 
 }  // namespace utils

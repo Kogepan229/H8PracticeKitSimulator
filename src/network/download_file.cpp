@@ -23,7 +23,7 @@ struct CallbackData {
     std::string error;
 };
 
-static size_t send_request_get(struct mg_connection *c, std::string url) {
+static size_t send_request_get(struct mg_connection *c, std::string &url) {
     struct mg_str host = mg_url_host(url.c_str());
 
     int result = mg_printf(
@@ -134,7 +134,8 @@ DownloadFileResult download_file(
         if (desc_dir_path.ends_with("/")) {
             callback_data.filepath = desc_dir_path + filename;
         } else {
-            callback_data.filepath = desc_dir_path + "/" + filename;
+            callback_data.filepath = std::format("{}/{}", desc_dir_path, filename);
+            // callback_data.filepath = desc_dir_path + "/" + filename;
         }
     }
 
@@ -197,6 +198,8 @@ DownloadFileResult download_file(
         klog::error(callback_data.error);
         return DownloadFileResult{.error = callback_data.error};
     }
+
+    callback_data = {.filepath = callback_data.filepath};
 
     klog::debug("Complete download.");
     return DownloadFileResult{.file_path = callback_data.filepath};

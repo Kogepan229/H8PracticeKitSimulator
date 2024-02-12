@@ -7,6 +7,7 @@
 
 #include "log.h"
 #include "nfd.hpp"
+#include "utils/future.hpp"
 
 namespace filebrowser {
 
@@ -29,20 +30,16 @@ void FileBrowser::open(const nfdu8filteritem_t *filter_items, size_t filter_item
 }
 
 bool FileBrowser::check_finished() {
-    if (filebrowser_ft.valid()) {
-        using namespace std::chrono_literals;
-        auto download_status = filebrowser_ft.wait_for(0ms);
-        if (download_status == std::future_status::ready) {
-            auto result = filebrowser_ft.get();
-            if (result == NFD_OKAY) {
-                result_path = std::string(out_path.get());
-            } else if (result == NFD_CANCEL) {
-                result_path = "";
-            } else {
-                klog::error(std::format("FileBrowser Error: {}", NFD_GetError()));
-            }
-            return true;
+    if (utils::future_is_ready(filebrowser_ft)) {
+        auto result = filebrowser_ft.get();
+        if (result == NFD_OKAY) {
+            result_path = std::string(out_path.get());
+        } else if (result == NFD_CANCEL) {
+            result_path = "";
+        } else {
+            klog::error(std::format("FileBrowser Error: {}", NFD_GetError()));
         }
+        return true;
     }
 
     return false;
