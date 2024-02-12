@@ -41,3 +41,4 @@ target_link_libraries(h8pks ${LIBRARIES})
 target_compile_definitions(h8pks PUBLIC -DImTextureID=ImU64)
 
 add_custom_target(h8pks_assets ALL COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/../assets $<TARGET_FILE_DIR:h8pks>/assets)
+add_custom_command(TARGET h8pks_assets POST_BUILD COMMAND ${CMAKE_COMMAND} -E echo "Copy assets to $<TARGET_FILE_DIR:h8pks>")
