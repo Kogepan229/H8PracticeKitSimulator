@@ -69,7 +69,7 @@ void DownloadEmulatorGui::update() {
                 if (!result.error.empty()) {
                     status        = DownloadEmulatorStatus::ERROR;
                     error_message = result.error;
-                    break;
+                    return;
                 }
 
                 if (result.version != emulator::get_version()) {
