@@ -62,9 +62,9 @@ jobs:
           -DCMAKE_CXX_COMPILER:FILEPATH="C:/llvm-mingw-${{ env.LLVM-MINGW_VERSION }}-ucrt-x86_64/bin/clang++.exe"
           -DCMAKE_MAKE_PROGRAM="ninja"
           -DCMAKE_BUILD_TYPE=Release
-          -DCMAKE_C_FLAGS="-O3 -DNDEBUG -DVK_PROTOTYPES -pipe -fintegrated-as -fintegrated-cc1 -fuse-ld=lld"
-          -DCMAKE_CXX_FLAGS="-O3 -DNDEBUG -DVK_PROTOTYPES -pipe -fintegrated-as -fintegrated-cc1 -fuse-ld=lld"
-          -DCMAKE_EXE_LINKER_FLAGS="-flto=full -ffunction-sections -fdata-sections -Wl,--gc-sections -fwhole-program-vtables -fforce-emit-vtables -fvirtual-function-elimination"
+          -DCMAKE_C_FLAGS="-O3 -DNDEBUG -DVK_PROTOTYPES -pipe -fintegrated-as -fintegrated-cc1"
+          -DCMAKE_CXX_FLAGS="-O3 -DNDEBUG -DVK_PROTOTYPES -pipe -fintegrated-as -fintegrated-cc1"
+          -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=lld -flto=full -ffunction-sections -fdata-sections -Wl,--gc-sections -fwhole-program-vtables -fforce-emit-vtables -fvirtual-function-elimination"
 
       - name: Build
         run: |
@@ -108,9 +108,9 @@ jobs:
           -DCMAKE_CXX_COMPILER="clang++-${{ env.LLVM_VERSION }}"
           -DCMAKE_MAKE_PROGRAM="ninja"
           -DCMAKE_BUILD_TYPE=Release
-          -DCMAKE_C_FLAGS="-O3 -DNDEBUG -DVK_PROTOTYPES -pipe -fintegrated-as -fintegrated-cc1 -fuse-ld=lld"
-          -DCMAKE_CXX_FLAGS="-O3 -DNDEBUG -DVK_PROTOTYPES -pipe -fintegrated-as -fintegrated-cc1 -fuse-ld=lld"
-          -DCMAKE_EXE_LINKER_FLAGS="-flto=full -ffunction-sections -fdata-sections -Wl,--gc-sections -fwhole-program-vtables -fforce-emit-vtables -fvirtual-function-elimination"
+          -DCMAKE_C_FLAGS="-O3 -DNDEBUG -DVK_PROTOTYPES -pipe -fintegrated-as -fintegrated-cc1"
+          -DCMAKE_CXX_FLAGS="-O3 -DNDEBUG -DVK_PROTOTYPES -pipe -fintegrated-as -fintegrated-cc1"
+          -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=lld -flto=full -ffunction-sections -fdata-sections -Wl,--gc-sections -fwhole-program-vtables -fforce-emit-vtables -fvirtual-function-elimination"
 
       - name: Build
         run: |
@@ -133,9 +133,9 @@ jobs:
           -DCMAKE_CXX_COMPILER="clang++-${{ env.LLVM_VERSION }}"
           -DCMAKE_MAKE_PROGRAM="ninja"
           -DCMAKE_BUILD_TYPE=Release
-          -DCMAKE_C_FLAGS="-O3 -DNDEBUG -DVK_PROTOTYPES -pipe -fintegrated-as -fintegrated-cc1 -fuse-ld=lld"
-          -DCMAKE_CXX_FLAGS="-O3 -DNDEBUG -DVK_PROTOTYPES -pipe -fintegrated-as -fintegrated-cc1 -fuse-ld=lld"
-          -DCMAKE_EXE_LINKER_FLAGS="-flto=full -ffunction-sections -fdata-sections -Wl,--gc-sections -fwhole-program-vtables -fforce-emit-vtables -fvirtual-function-elimination -static-libgcc -static-libstdc++"
+          -DCMAKE_C_FLAGS="-O3 -DNDEBUG -DVK_PROTOTYPES -pipe -fintegrated-as -fintegrated-cc1"
+          -DCMAKE_CXX_FLAGS="-O3 -DNDEBUG -DVK_PROTOTYPES -pipe -fintegrated-as -fintegrated-cc1"
+          -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=lld -flto=full -ffunction-sections -fdata-sections -Wl,--gc-sections -fwhole-program-vtables -fforce-emit-vtables -fvirtual-function-elimination -static-libgcc -static-libstdc++"
 
       - name: Build (Static libstdc++)
         run: |
