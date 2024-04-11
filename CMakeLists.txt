@@ -7,12 +7,6 @@ endif()
 
 set(CMAKE_CXX_STANDARD 20)
 
-if(NOT MSVC)
-  if(${STATIC_LIBSTDCPP})
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++ ")
-  endif()
-endif()
-
 # GLFW
 set(GLFW_DIR ./libraries/glfw) # Set this to point to an up-to-date GLFW repo
 option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" OFF)
