@@ -75,7 +75,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.PROJECT_NAME }}-x86_64-windows
-          path: ./build/src/${{ env.PROJECT_NAME }}.exe
+          path: ./build/${{ env.PROJECT_NAME }}.exe
           if-no-files-found: error
 
   build-linux:
@@ -121,7 +121,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.PROJECT_NAME }}-x86_64-linux
-          path: ./build/src/${{ env.PROJECT_NAME }}
+          path: ./build/${{ env.PROJECT_NAME }}
           if-no-files-found: error
 
       - name: Run cmake (Static libstdc++)
@@ -146,7 +146,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.PROJECT_NAME }}-x86_64-linux-static_libstdcpp
-          path: ./build/src/${{ env.PROJECT_NAME }}
+          path: ./build/${{ env.PROJECT_NAME }}
           if-no-files-found: error
 
   release:
