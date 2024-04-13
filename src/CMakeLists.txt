@@ -1,44 +1,38 @@
 set(CORE_SOURCES
-    graphics.cpp
-    font.cpp
-    log.cpp
-    lang.cpp
-    entity.cpp
-    file_browser.cpp
-    utils/string.cpp
-    utils/time.cpp
-    emulator/emulator.cpp
+  main.cpp
+  graphics.cpp
+  font.cpp
+  log.cpp
+  lang.cpp
+  entity.cpp
+  file_browser.cpp
+  utils/string.cpp
+  utils/time.cpp
+  emulator/emulator.cpp
 )
 
 set(NETWORK_SOURCES
-    network/dns.cpp
-    network/cert.cpp
-    network/http_get.cpp
-    network/download_file.cpp
+  network/dns.cpp
+  network/cert.cpp
+  network/http_get.cpp
+  network/download_file.cpp
 )
 
 set(GUI_SOURCES
-    gui/download_emulator_gui.cpp
-    gui/main_gui.cpp
+  gui/download_emulator_gui.cpp
+  gui/main_gui.cpp
 )
 
 set(H8PKS_SOURCES ${CORE_SOURCES} ${NETWORK_SOURCES} ${GUI_SOURCES})
 
-set(IMGUI_SOURCES
-    ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
-    ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
-    ${IMGUI_DIR}/imgui.cpp
-    ${IMGUI_DIR}/imgui_draw.cpp
-    ${IMGUI_DIR}/imgui_demo.cpp
-    ${IMGUI_DIR}/imgui_tables.cpp
-    ${IMGUI_DIR}/imgui_widgets.cpp
-)
+# ref https://stackoverflow.com/a/27630120
+FUNCTION(PREPEND var prefix)
+  SET(listVar "")
+  FOREACH(f ${ARGN})
+    LIST(APPEND listVar "${prefix}/${f}")
+  ENDFOREACH(f)
+  SET(${var} "${listVar}" PARENT_SCOPE)
+ENDFUNCTION(PREPEND)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
-add_executable(h8pks main.cpp ${H8PKS_SOURCES} ${IMGUI_SOURCES} ${MONGOOSE_DIR}/mongoose.c)
-target_link_libraries(h8pks ${LIBRARIES})
-target_compile_definitions(h8pks PUBLIC -DImTextureID=ImU64)
-
-add_custom_target(h8pks_assets ALL COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/../assets $<TARGET_FILE_DIR:h8pks>/assets)
-add_custom_command(TARGET h8pks_assets POST_BUILD COMMAND ${CMAKE_COMMAND} -E echo "Copy assets to $<TARGET_FILE_DIR:h8pks>")
+PREPEND(H8PKS_SOURCES ${CMAKE_CURRENT_SOURCE_DIR} ${H8PKS_SOURCES})
+set(H8PKS_SOURCES ${H8PKS_SOURCES} PARENT_SCOPE)
