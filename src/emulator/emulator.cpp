@@ -7,6 +7,7 @@
 #include <format>
 #include <future>
 #include <memory>
+#include <nlohmann/detail/exceptions.hpp>
 #include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
@@ -80,35 +81,40 @@ LatestEmulatorInfo get_latest_info() {
         return info;
     }
 
-    nlohmann::json data = nlohmann::json::parse(result.body);
+    try {
+        nlohmann::json data = nlohmann::json::parse(result.body);
 
-    if (!data["tag_name"].empty()) {
-        std::string tag = data["tag_name"].get<std::string>();
-        info.version    = tag.replace(0, 1, "");  // replace "v" -> ""
-    } else {
-        info.error = "Could not found tag_name.";
-        return info;
-    }
+        if (!data["tag_name"].empty()) {
+            std::string tag = data["tag_name"].get<std::string>();
+            info.version    = tag.replace(0, 1, "");  // replace "v" -> ""
+        } else {
+            info.error = "Could not found tag_name.";
+            return info;
+        }
 
 #if defined(_WIN32) || defined(_WIN64)
-    constexpr std::string_view TARGET = "windows";
+        constexpr std::string_view TARGET = "windows";
 #else
-    constexpr std::string_view TARGET = "linux";
+        constexpr std::string_view TARGET = "linux";
 #endif
 
-    for (size_t i = 0; i < data["assets"].size(); i++) {
-        if (!data["assets"][i]["name"].empty()) {
-            std::string name = data["assets"][i]["name"].get<std::string>();
-            if (name.find(TARGET) != std::string::npos) {
-                if (!data["assets"][i]["browser_download_url"].empty()) {
-                    info.url = data["assets"][i]["browser_download_url"].get<std::string>();
-                    break;
-                } else {
-                    info.error = "Could not download_url. But file name is found.";
-                    return info;
+        for (size_t i = 0; i < data["assets"].size(); i++) {
+            if (!data["assets"][i]["name"].empty()) {
+                std::string name = data["assets"][i]["name"].get<std::string>();
+                if (name.find(TARGET) != std::string::npos) {
+                    if (!data["assets"][i]["browser_download_url"].empty()) {
+                        info.url = data["assets"][i]["browser_download_url"].get<std::string>();
+                        break;
+                    } else {
+                        info.error = "Could not download_url. But file name is found.";
+                        return info;
+                    }
                 }
             }
         }
+    } catch (nlohmann::json_abi_v3_11_3::detail::parse_error e) {
+        info.error = e.what();
+        return info;
     }
 
     if (info.url.empty()) {
