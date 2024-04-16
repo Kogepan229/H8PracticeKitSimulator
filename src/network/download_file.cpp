@@ -12,6 +12,8 @@
 #include "network/dns.hpp"
 #include "utils/string.hpp"
 
+namespace {
+
 struct CallbackData {
     bool done{false};
     std::string url;
@@ -119,6 +121,8 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
         return;
     }
 }
+
+}  // namespace
 
 namespace network {
 

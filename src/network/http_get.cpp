@@ -9,15 +9,17 @@
 #include "network/dns.hpp"
 #include "utils/string.hpp"
 
-struct CallbackData {
-    bool done                = false;
-    std::string url          = "";
-    std::string redirect_url = "";
-    std::string head         = "";
-    std::string body         = "";
-    int content_length       = 0;
-    int received_length      = 0;
-    std::string error        = "";
+namespace {
+
+struct CallbackDataGet {
+    bool done{false};
+    std::string url;
+    std::string redirect_url;
+    std::string head;
+    std::string body;
+    int content_length{0};
+    int received_length{0};
+    std::string error;
 };
 
 static size_t send_request_get(struct mg_connection *c, std::string url) {
@@ -35,7 +37,7 @@ static size_t send_request_get(struct mg_connection *c, std::string url) {
 }
 
 static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
-    CallbackData *cb_data = static_cast<CallbackData *>(fn_data);
+    CallbackDataGet *cb_data = static_cast<CallbackDataGet *>(fn_data);
 
     if (ev == MG_EV_CONNECT) {
         if (mg_url_is_ssl(cb_data->url.c_str())) {
@@ -98,11 +100,12 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
     }
 }
 
+}  // namespace
+
 namespace network {
 
 HttpGetResult http_get(const std::string url) {
-    CallbackData callback_data = CallbackData();
-    callback_data.url          = url;
+    CallbackDataGet callback_data{.url{url}};
 
     // Download file
     {
