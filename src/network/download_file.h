@@ -5,9 +5,9 @@
 namespace network {
 struct DownloadFileResult {
     // Downloaded file path
-    std::string file_path;
+    std::string file_path{};
     // Empty if there are no errors
-    std::string error;
+    std::string error{};
 };
 
 DownloadFileResult download_file(

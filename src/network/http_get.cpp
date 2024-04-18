@@ -13,13 +13,13 @@ namespace {
 
 struct CallbackDataGet {
     bool done{false};
-    std::string url;
-    std::string redirect_url;
-    std::string head;
-    std::string body;
+    std::string url{};
+    std::string redirect_url{};
+    std::string head{};
+    std::string body{};
     int content_length{0};
     int received_length{0};
-    std::string error;
+    std::string error{};
 };
 
 static size_t send_request_get(struct mg_connection *c, std::string url) {
@@ -42,7 +42,7 @@ static void callback_get(struct mg_connection *c, int ev, void *ev_data, void *f
     if (ev == MG_EV_CONNECT) {
         if (mg_url_is_ssl(cb_data->url.c_str())) {
             struct mg_str host      = mg_url_host(cb_data->url.c_str());
-            struct mg_tls_opts opts = {.ca = network::get_cert(), .name = host};
+            struct mg_tls_opts opts = {.ca = network::get_cert(), .cert{}, .key{}, .name = host};
             mg_tls_init(c, &opts);
         }
         send_request_get(c, cb_data->url);
